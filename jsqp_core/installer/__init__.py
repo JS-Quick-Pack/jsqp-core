@@ -1,5 +1,5 @@
 
 class Installer():
-    """Class that handles installation of packs."""
+    """Class that handles installation of minecraft packs."""
 
     pass

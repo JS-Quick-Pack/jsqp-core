@@ -35,6 +35,11 @@ class FilePackage(Package):
         return self.__path_to_file
 
     @property
+    def full_path(self) -> str:
+        """Returns the full path location of this package."""
+        return os.path.abspath(self.__path_to_file)
+
+    @property
     def file(self) -> FileIO|None:
         """Returns the file object of this package. Returns none if it doesn't exist."""
         return self.__file
@@ -48,7 +53,10 @@ class FilePackage(Package):
         """Returns the type of the actual file. Is it a folder? Is it a file?"""
         
         if os.path.isfile(self.__path_to_file):
-            return FileTypes.FILE
+            if os.path.splitext(self.__path_to_file)[-1] == ".zip":
+                return FileTypes.ZIP
+            else:
+                return FileTypes.FILE
         if os.path.isdir(self.__path_to_file):
             return FileTypes.FOLDER
         if os.path.islink(self.__path_to_file):

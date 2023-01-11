@@ -5,3 +5,4 @@ class FileTypes(Enum):
     FILE = 0
     FOLDER = 1
     SYMBOLIC_LINK = 2
+    ZIP = 3
