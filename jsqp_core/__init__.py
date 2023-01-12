@@ -8,6 +8,6 @@ jsqp_core_logger = add_custom_handler(log.getLogger(JSQP_CORE_LOGGER_NAME)); jsq
 
 # Useful objects.
 # -----------------
-from .objects.package import FilePackage
+from . import minecraft
 
 from .objects.texture_pack import TexturePack

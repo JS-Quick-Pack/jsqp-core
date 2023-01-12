@@ -3,12 +3,18 @@ from __future__ import annotations
 import os
 from io import FileIO
 
+from pyparsing import Literal
+
 from ... import jsqp_core_logger, LoggerAdapter
 from .file_types import FileTypes
 
 class Package:
     """The base class for a package."""
     def __init__(self):
+        pass
+
+    @property
+    def name(self):
         pass
 
 class FilePackage(Package):
@@ -44,9 +50,10 @@ class FilePackage(Package):
         """Returns the file object of this package. Returns none if it doesn't exist."""
         return self.__file
     
-    def move(self, move_to_path:str):
+    def move(self, move_to_path:str) -> FilePackage:
         """Allows you to move this file to another location."""
-        ...
+        self.logger.debug(f"Moving '{self.file.name}' to '{move_to_path}'...")
+        pass
 
     @property
     def file_type(self) -> FileTypes|None:
