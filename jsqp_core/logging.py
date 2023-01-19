@@ -33,11 +33,10 @@ class JSQPCustomFormatter(log.Formatter):
 
 class LoggerAdapter(log.LoggerAdapter):
     def __init__(self, logger:log.Logger, prefix:str):
-        super().__init__(logger, {})
-        self.prefix = prefix
+        super().__init__(logger, {'prefix': prefix})
 
     def process(self, msg, kwargs):
-        return f"\u001b[92m[{self.prefix}]\u001b[0m {msg}", kwargs
+        return f"\u001b[92m[{self.extra['prefix']}]\u001b[0m {msg}", kwargs
 
 # Method for adding custom handler to any logger object.
 # -------------------------------------

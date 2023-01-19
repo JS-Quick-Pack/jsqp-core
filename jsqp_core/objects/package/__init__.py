@@ -1,39 +1,32 @@
 from __future__ import annotations
 
 import os
+import pathlib
+import shutil
 from io import FileIO
-
-from pyparsing import Literal
+import zipfile
 
 from ... import jsqp_core_logger, LoggerAdapter
 from .file_types import FileTypes
 
-class Package:
+class Package(): #TODO: Might make this into a dataclass.
     """The base class for a package."""
-    def __init__(self):
-        pass
+    def __init__(self, name:str):
+        self.__name = name
 
     @property
-    def name(self):
-        pass
+    def name(self) -> str:
+        return self.__name
 
 class FilePackage(Package):
     """A package represented as an actual file."""
     def __init__(self, path_to_file:str):
         self.__path_to_file = path_to_file
-
         self.logger = LoggerAdapter(jsqp_core_logger, "FilePackage")
 
-        self.__file = None
-        self.logger.debug(f"Checking if file exists...")
-        if os.path.exists(path_to_file):
-            self.logger.debug(f"Opening and reading file at '{os.path.abspath(path_to_file)}'...")
-            self.__file = open(path_to_file, "r")
-            self.logger.debug("File read!")
-        else:
-            self.logger.error(f"File at '{os.path.abspath(path_to_file)}' cannot be found for this package.")
+        super().__init__("UwUDummyName")
 
-        super().__init__()
+        self.__file = self.open_file(path_to_file)
 
     @property
     def path(self) -> str:
@@ -49,11 +42,76 @@ class FilePackage(Package):
     def file(self) -> FileIO|None:
         """Returns the file object of this package. Returns none if it doesn't exist."""
         return self.__file
+
+    @property
+    def file_name(self) -> str|None:
+        """Returns file name if the file object is available, if not it returns the package name so don't use this if you really need the file name."""
+        if self.file is None:
+            return self.name
+        
+        return self.file.name
+
+    def open_file(self, path_to_file:str) -> None|FileIO:
+        self.logger.debug(f"Checking if file exists...")
+        if os.path.exists(path_to_file):
+            if self.file_type == FileTypes.FOLDER:
+                self.logger.debug(f"'{self.name}' is a folder so the file object will be None and file name will be referred to as actual package name.")
+                return None
+            
+            self.logger.debug(f"Opening and reading file at '{os.path.abspath(path_to_file)}'...")
+            file = open(path_to_file, "r")
+            file.close()
+            return file
+
+        self.logger.error(f"File package at '{os.path.abspath(path_to_file)}' cannot be found.")
+        return None
     
     def move(self, move_to_path:str) -> FilePackage:
-        """Allows you to move this file to another location."""
-        self.logger.debug(f"Moving '{self.file.name}' to '{move_to_path}'...")
-        pass
+        """Allows you to move this file package to another location. Raises ``FileNotFoundError`` if path or file does not exist."""
+        self.logger.info(f"Moving '{self.file_name}' to '{move_to_path}'...")
+
+        shutil.move(self.full_path, move_to_path)
+
+        # Update path
+        self.__path_to_file = move_to_path
+
+        self.logger.info(f"Moved to '{move_to_path}'!")
+        return True
+
+    def zip(self, zip_name:str=None) -> bool:
+        """Turn file package into a zip if it is a folder."""
+        if zip_name is None:
+            zip_name = self.name + ".zip"
+
+        if self.file_type == FileTypes.FOLDER:
+            self.logger.info(f"Getting directory files of '{self.file_name}'...")
+            directory = pathlib.Path(self.full_path)
+
+            zip_name = (lambda x: x if x[-4:] == ".zip" else (x + ".zip"))(zip_name)
+            path_to_zip = self.full_path.replace(os.path.split(self.path)[-1], zip_name)
+
+            self.logger.info(f"Zipping {self.file_name} to '{path_to_zip}'...")
+            
+            # Zipping each file in directory.
+            # --------------------------------
+            with zipfile.ZipFile(path_to_zip, mode="w") as archive:
+                for file_path in directory.iterdir():
+                    #TODO: Change this to set the texture pack folder as the root folder of zip.
+                    archive.write(file_path, arcname=file_path.name)
+                    self.logger.debug(f"Zipped '{file_path}'.")
+            
+            # Updating path and file object.
+            self.__path_to_file = path_to_zip
+            self.__file = self.open_file(path_to_zip)
+
+            return True
+
+        if self.file_type == FileTypes.ZIP:
+            self.logger.warn(f"'{self.file_name}' is already a zip so no need to zip it.")
+            return False
+
+        self.logger.error(f"'{self.file_name}' can't be zipped because it isn't a folder/directory.")
+        return False
 
     @property
     def file_type(self) -> FileTypes|None:
