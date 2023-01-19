@@ -15,7 +15,7 @@ class TexturePack(FilePackage):
 
     def install(self):
         """Method that allows you to install this pack into your Minecraft Game."""
-        #TODO: Change path dir to actual texture pack.
+        #TODO: Change path dir to actual texture pack. (The detected directory/folder of the pack.)
         start_time = time.perf_counter()
         minecraft.Minecraft().install(self) #TODO: Add argument to change installer and add installer base class.
         end_time = time.perf_counter()
