@@ -5,9 +5,12 @@ import pathlib
 import shutil
 from io import FileIO
 import zipfile
+from abc import ABC, abstractmethod
 
 from ... import jsqp_core_logger, LoggerAdapter
 from .file_types import FileTypes
+from ...errors import PackageAlreadyExist
+from ...paths import Paths
 
 class Package(): #TODO: Might make this into a dataclass.
     """The base class for a package."""
@@ -28,6 +31,16 @@ class FilePackage(Package):
 
         self.__file = self.open_file(path_to_file)
 
+    # Abstract methods
+    # ------------------
+    @property
+    @abstractmethod
+    def install_location(self) -> str:
+        """Returns the path this package want's to be installed to."""
+        return Paths().jsqp_core_appdata_dir + "/packages"
+    
+    # Other attributes
+    # -------------------
     @property
     def path(self) -> str:
         """Returns the path of this package."""
@@ -45,12 +58,17 @@ class FilePackage(Package):
 
     @property
     def file_name(self) -> str|None:
-        """Returns file name if the file object is available, if not it returns the package name so don't use this if you really need the file name."""
+        """Returns file name even if the file object is unavailable."""
         if self.file is None:
-            return self.name
-        
-        return self.file.name
+            return os.path.split(self.full_path)[1]
 
+        return os.path.split(self.file.name)[1]
+
+    def file_rename(self, new_name:str):
+        """Renames the package's file. You got to also include file extension here."""
+        os.rename(self.full_path, os.path.split(self.full_path)[0] + new_name)
+        return True
+        
     def open_file(self, path_to_file:str) -> None|FileIO:
         self.logger.debug(f"Checking if file exists...")
         if os.path.exists(path_to_file):
@@ -66,10 +84,18 @@ class FilePackage(Package):
         self.logger.error(f"File package at '{os.path.abspath(path_to_file)}' cannot be found.")
         return None
     
-    def move(self, move_to_path:str) -> FilePackage:
+    def move(self, move_to_path:str, overwrite_if_exist:bool=False) -> bool:
         """Allows you to move this file package to another location. Raises ``FileNotFoundError`` if path or file does not exist."""
-        self.logger.info(f"Moving '{self.file_name}' to '{move_to_path}'...")
+        new_file_path = f"{move_to_path}/{os.path.split(self.full_path)[1]}"
 
+        if os.path.exists(new_file_path):
+            if overwrite_if_exist:
+                old_package = FilePackage(new_file_path)
+                old_package.delete()
+            else:
+                raise PackageAlreadyExist(self, new_file_path)
+
+        self.logger.info(f"Moving '{self.file_name}' to '{new_file_path}'...")
         shutil.move(self.full_path, move_to_path)
 
         # Update path
@@ -98,7 +124,7 @@ class FilePackage(Package):
                 for file_path in directory.iterdir():
                     #TODO: Change this to set the texture pack folder as the root folder of zip.
                     archive.write(file_path, arcname=file_path.name)
-                    self.logger.debug(f"Zipped '{file_path}'.")
+                    self.logger.debug(f"Zipped '{file_path}'.") #TODO: Find a way to print every file being zipped.
             
             # Updating path and file object.
             self.__path_to_file = path_to_zip
@@ -112,6 +138,13 @@ class FilePackage(Package):
 
         self.logger.error(f"'{self.file_name}' can't be zipped because it isn't a folder/directory.")
         return False
+
+    def delete(self) -> bool:
+        """Completely deletes the package with it's file."""
+        self.logger.info(f"Deleting '{self.name}' at '{self.full_path}'...")
+        os.remove(self.full_path)
+        self.logger.debug(f"'{self.full_path}' deleted!")
+        return True
 
     @property
     def file_type(self) -> FileTypes|None:

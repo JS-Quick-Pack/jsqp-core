@@ -30,15 +30,14 @@ class Paths():
             raise OSNotSupported()
             
     @property
-    def dev_goldy_dir(self):
+    def dev_goldy_dir(self) -> str:
         """Returns path to DevGoldy appdata folder."""
-        return (lambda x: x + "/.devgoldy" if not x is None else None)(self.appdata_dir)
+        return f"{self.appdata_dir}/.devgoldy"
 
     @property
-    def jsqp_core_appdata_dir(self) -> str|None:
+    def jsqp_core_appdata_dir(self) -> str:
         """Returns path to jsqp core appdata folder."""
-        return (lambda x: f"{self.dev_goldy_dir}/JSQPCore" if not x is None else None)(self.appdata_dir)
-
+        return f"{self.dev_goldy_dir}/JSQPCore"
 
     def repair_app_data_dir(self, more_paths_to_repair:List[str]=[]):
         self.logger.info(f"Creating/repairing appdata dir at '{self.jsqp_core_appdata_dir}'...")

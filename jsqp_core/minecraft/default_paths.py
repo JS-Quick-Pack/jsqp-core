@@ -6,4 +6,5 @@ paths = Paths()
 class DefaultPaths(Enum):
     DOT_MINECRAFT = (paths.appdata_dir + "./minecraft")
 
-    JSQP_INSTALL_PATH = (paths.jsqp_core_appdata_dir + "/packages")
+    DOT_MINECRAFT_RPS = (DOT_MINECRAFT + "/resourcepacks")
+    """Default .minecraft resource packs folder."""

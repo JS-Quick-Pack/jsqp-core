@@ -1,5 +1,5 @@
 from ..objects import package as pk, texture_pack
-from ..errors import PackageNotSupported
+from ..errors import PackageNotSupported, PackageAlreadyExist
 from ..paths import Paths
 
 from .default_paths import DefaultPaths
@@ -12,24 +12,25 @@ class Minecraft():
         if isinstance(dot_minecraft_dir, DefaultPaths): 
             self.__dot_minecraft_dir = dot_minecraft_dir.value
 
-    def install(self, package:pk.Package) -> bool:
+    def install(self, package:pk.Package, overwrite_if_exist:bool=False) -> bool:
         """Method to install a package into minecraft."""
-        install_path:str = DefaultPaths.JSQP_INSTALL_PATH.value
         
         if isinstance(package, texture_pack.TexturePack):
+            # Zip the package if it is a folder.
             if package.file_type == pk.FileTypes.FOLDER:
                 package.zip()
 
+            # Move the package to JSQPCore install location directory.
             try:
-                package.move(install_path + "/resource_packs")
+                package.move(package.install_location, overwrite_if_exist)
             except FileNotFoundError:
                 # Repair and try again if file is not found.
                 # -------------------------------------------
                 Paths().repair_app_data_dir([
-                    install_path + "/resource_packs"
+                    package.install_location
                 ])
 
-                package.move(install_path + "/resource_packs")
+                package.move(package.install_location, overwrite_if_exist)
 
             return True
             

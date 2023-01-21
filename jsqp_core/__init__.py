@@ -6,6 +6,8 @@ JSQP_CORE_LOGGER_NAME = f"{C.pink_grey}JSQP{C.red}_{C.clay}CORE{C.reset}"
 jsqp_core_logger = add_custom_handler(log.getLogger(JSQP_CORE_LOGGER_NAME)); jsqp_core_logger.setLevel(log.INFO)
 """The logger object for jsqp core."""
 
+from .errors import *
+
 # Useful objects.
 # -----------------
 from . import minecraft
