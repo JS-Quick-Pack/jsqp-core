@@ -1,31 +1,33 @@
 import time
 
 from .package import FilePackage
-from .. import minecraft
+from ..installers import Installer, Minecraft
 from .. import LoggerAdapter, jsqp_core_logger
-from ..paths import Paths
 
 class TexturePack(FilePackage):
     """Class that represents a minecraft texture pack file."""
     def __init__(self, path_to_file: str):
         self.tp_logger = LoggerAdapter(jsqp_core_logger, "TexturePack")
 
-        super().__init__(path_to_file)
-
+        #TODO: Change path_to_file to actual texture pack folder. (The detected directory/folder of the pack.)
         #TODO: Detect if file is actually a texture pack.
+
+        super().__init__(path_to_file)
 
     @property
     def install_location(self) -> str:
         return super().install_location + "/resource_packs"
 
-    def install(self, overwrite=False):
+    def install(self, installer:Installer=None, overwrite=False):
         """Method that allows you to install this pack into your Minecraft Game."""
-        #TODO: Change path dir to actual texture pack. (The detected directory/folder of the pack.)
-        start_time = time.perf_counter()
-        minecraft.Minecraft().install(self, overwrite_if_exist=overwrite) #TODO: Add argument to change installer and add installer base class.
-        end_time = time.perf_counter()
+        if installer is None: # Default installer.
+            installer = Minecraft()
 
-        #TODO: I might change all of this later. (Might not have a pack install method anymore.)
+        start_time = time.perf_counter()
+
+        installer.install(self, overwrite_if_exist=overwrite) #TODO: Add argument to change installer and add installer base class.
+
+        end_time = time.perf_counter()
 
         self.tp_logger.info(f"⌛ Installed '{self.name}' in {end_time - start_time:0.4f} seconds!")
 

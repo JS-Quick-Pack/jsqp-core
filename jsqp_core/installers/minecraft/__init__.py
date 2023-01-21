@@ -1,16 +1,20 @@
-from ..objects import package as pk, texture_pack
-from ..errors import PackageNotSupported, PackageAlreadyExist
-from ..paths import Paths
+from ...objects import package as pk, texture_pack
+from ...errors import PackageNotSupported, PackageAlreadyExist
+from ...paths import Paths
+
+from .. import Installer
 
 from .default_paths import DefaultPaths
 
-class Minecraft():
+class Minecraft(Installer):
     """Class that handles installation of minecraft java edition packs."""
     def __init__(self, dot_minecraft_dir:str=DefaultPaths.DOT_MINECRAFT):
         self.__dot_minecraft_dir = dot_minecraft_dir
 
         if isinstance(dot_minecraft_dir, DefaultPaths): 
             self.__dot_minecraft_dir = dot_minecraft_dir.value
+
+        super().__init__()
 
     def install(self, package:pk.Package, overwrite_if_exist:bool=False) -> bool:
         """Method to install a package into minecraft."""

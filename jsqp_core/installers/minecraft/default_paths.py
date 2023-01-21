@@ -1,5 +1,5 @@
 from enum import Enum
-from ..paths import Paths
+from . import Paths
 
 paths = Paths()
 
