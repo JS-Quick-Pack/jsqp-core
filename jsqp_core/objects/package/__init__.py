@@ -93,6 +93,7 @@ class FilePackage(Package):
                 old_package = FilePackage(new_file_path)
                 old_package.delete()
             else:
+                self.delete()
                 raise PackageAlreadyExist(self, new_file_path)
 
         self.logger.info(f"Moving '{self.file_name}' to '{new_file_path}'...")
@@ -111,7 +112,7 @@ class FilePackage(Package):
 
         if self.file_type == FileTypes.FOLDER:
             self.logger.info(f"Getting directory files of '{self.file_name}'...")
-            directory = pathlib.Path(self.full_path)
+            directory = pathlib.Path(self.path)
 
             zip_name = (lambda x: x if x[-4:] == ".zip" else (x + ".zip"))(zip_name)
             path_to_zip = self.full_path.replace(os.path.split(self.path)[-1], zip_name)
@@ -121,10 +122,12 @@ class FilePackage(Package):
             # Zipping each file in directory.
             # --------------------------------
             with zipfile.ZipFile(path_to_zip, mode="w") as archive:
-                for file_path in directory.iterdir():
-                    #TODO: Change this to set the texture pack folder as the root folder of zip.
-                    archive.write(file_path, arcname=file_path.name)
-                    self.logger.debug(f"Zipped '{file_path}'.") #TODO: Find a way to print every file being zipped.
+                #TODO: Change this to set the texture pack folder as the root folder of zip.
+
+                for file_path in directory.rglob("*"):
+                    jeff = os.path.join(*(str(file_path).split(os.path.sep)[1:]))
+                    archive.write(file_path, arcname=jeff)
+                    self.logger.debug(f"Zipped '{file_path.name}'.")
             
             # Updating path and file object.
             self.__path_to_file = path_to_zip

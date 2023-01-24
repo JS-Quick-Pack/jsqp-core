@@ -1,11 +1,16 @@
 import time
 
-from .package import FilePackage
-from ..installers import Installer, Minecraft
 from .. import LoggerAdapter, jsqp_core_logger
 
+from ..objects.package import FilePackage
+from ..installers import Installer
+from .. import MinecraftJava
+from devgoldyutils.console import ConsoleColours
+
 class TexturePack(FilePackage):
-    """Class that represents a minecraft texture pack file."""
+    """
+    Class that allows you to represent a file as a texture pack and install it to a minecraft game.
+    """
     def __init__(self, path_to_file: str):
         self.tp_logger = LoggerAdapter(jsqp_core_logger, "TexturePack")
 
@@ -19,9 +24,19 @@ class TexturePack(FilePackage):
         return super().install_location + "/resource_packs"
 
     def install(self, installer:Installer=None, overwrite=False):
-        """Method that allows you to install this pack into your Minecraft Game."""
+        """
+        Method that allows you to install this pack into your Minecraft Game.
+        
+        Defaults to Minecraft Java Edition.
+        """
         if installer is None: # Default installer.
-            installer = Minecraft()
+            installer = MinecraftJava()
+            self.tp_logger.info(f"Installer was never specified so I'm defaulting to '{installer.display_name}'.")
+
+        if jsqp_core_logger.level == 10:
+            self.tp_logger.warn(
+                "\u001b[33;20mTexture packs will take longer to install because logging level is set to DEBUG! Please set logging level to info unless you know what you are doing.\u001b[0m"
+            )
 
         start_time = time.perf_counter()
 

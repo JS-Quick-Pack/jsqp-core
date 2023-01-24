@@ -1,4 +1,4 @@
-from ...objects import package as pk, texture_pack
+from ...objects import package as pk
 from ...errors import PackageNotSupported, PackageAlreadyExist
 from ...paths import Paths
 
@@ -6,7 +6,7 @@ from .. import Installer
 
 from .default_paths import DefaultPaths
 
-class Minecraft(Installer):
+class MinecraftJava(Installer):
     """Class that handles installation of minecraft java edition packs."""
     def __init__(self, dot_minecraft_dir:str=DefaultPaths.DOT_MINECRAFT):
         self.__dot_minecraft_dir = dot_minecraft_dir
@@ -14,12 +14,15 @@ class Minecraft(Installer):
         if isinstance(dot_minecraft_dir, DefaultPaths): 
             self.__dot_minecraft_dir = dot_minecraft_dir.value
 
-        super().__init__()
+        super().__init__(
+            "Minecraft Java Edition"
+        )
 
     def install(self, package:pk.Package, overwrite_if_exist:bool=False) -> bool:
         """Method to install a package into minecraft."""
-        
-        if isinstance(package, texture_pack.TexturePack):
+        from ...packages.texture_pack import TexturePack
+
+        if isinstance(package, TexturePack):
             # Zip the package if it is a folder.
             if package.file_type == pk.FileTypes.FOLDER:
                 package.zip()

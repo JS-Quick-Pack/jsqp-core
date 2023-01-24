@@ -8,10 +8,13 @@ jsqp_core_logger = add_custom_handler(log.getLogger(JSQP_CORE_LOGGER_NAME)); jsq
 
 from .errors import *
 
-# Installers
+#  Installers
 # ------------
-from .installers.minecraft import Minecraft
 
-# Other Objects
-# --------------
-from .objects.texture_pack import TexturePack
+# Minecraft Java Edition
+# ------------------------
+from .installers.minecraft_java import MinecraftJava
+
+#  Packages
+# -----------
+from .packages.texture_pack import TexturePack
