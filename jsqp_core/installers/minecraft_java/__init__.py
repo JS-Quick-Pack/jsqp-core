@@ -25,8 +25,9 @@ class MinecraftJava(Installer):
         if isinstance(package, TexturePack):
             # Zip the package if it is a folder.
             if package.file_type == pk.FileTypes.FOLDER:
-                package.zip(performance_mode=performance_mode)
-                
+                package.zip(package.name + ".zip", performance_mode)
+
+            package.file_rename(f"{package.name}.zip")
 
             # Move the package to JSQPCore install location directory.
             try:

@@ -14,18 +14,14 @@ class TexturePack(FilePackage):
     def __init__(self, path_to_file: str):
         self.tp_logger = LoggerAdapter(jsqp_core_logger, "TexturePack")
 
-        #TODO: Change path_to_file to actual texture pack folder. (The detected directory/folder of the pack.)
-        #TODO: Detect if file is actually a texture pack.
+        #TODO: Change path_to_file to actual texture pack directory.
+        #TODO: Name package to actual texture pack name.
 
         super().__init__(path_to_file)
 
     @property
     def install_location(self) -> str:
         return super().install_location + "/resource_packs"
-
-    def is_this_a_texture_pack(self):
-        """Method that can detect """
-        ...
 
     def install(self, installer:Installer=None, overwrite:bool=False, performance_mode:bool=False):
         """

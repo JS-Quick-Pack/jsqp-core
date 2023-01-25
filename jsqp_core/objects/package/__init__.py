@@ -10,7 +10,7 @@ from abc import ABC, abstractmethod
 
 from ... import jsqp_core_logger, LoggerAdapter
 from .file_types import FileTypes
-from ...errors import PackageAlreadyExist
+from ...errors import PackageAlreadyExist, JSQPCoreError
 from ...paths import Paths
 
 class Package(): #TODO: Might make this into a dataclass.
@@ -60,14 +60,22 @@ class FilePackage(Package):
     @property
     def file_name(self) -> str|None:
         """Returns file name even if the file object is unavailable."""
-        if self.file is None:
-            return os.path.split(self.full_path)[1]
+        return os.path.split(self.full_path)[1]
 
-        return os.path.split(self.file.name)[1]
-
-    def file_rename(self, new_name:str):
+    def file_rename(self, new_name:str, overwrite_if_exist:bool=True):
         """Renames the package's file. You got to also include file extension here."""
-        os.rename(self.full_path, os.path.split(self.full_path)[0] + new_name)
+        new_file_path = (lambda x: "" if x == "." else x)(os.path.split(self.path)[0]) + new_name
+
+        if os.path.exists(new_file_path):
+            if overwrite_if_exist:
+                FilePackage(new_file_path).delete()
+                os.rename(self.full_path, new_file_path)
+            else:
+                raise JSQPCoreError(f"Can't rename '{self.file_name}' to '{new_name}' because that file name already exists at '{new_file_path}' and I've been told to NOT overwrite it.")
+        else:
+            os.rename(self.full_path, new_file_path)
+
+        self.__path_to_file = new_file_path
         return True
         
     def open_file(self, path_to_file:str) -> None|FileIO:
@@ -81,13 +89,12 @@ class FilePackage(Package):
             file = open(path_to_file, "r")
             file.close()
             return file
-
-        self.logger.error(f"File package at '{os.path.abspath(path_to_file)}' cannot be found.")
-        return None
+            
+        raise JSQPCoreError(f"File package at '{os.path.abspath(path_to_file)}' cannot be found.")
     
     def move(self, move_to_path:str, overwrite_if_exist:bool=False) -> bool:
         """Allows you to move this file package to another location. Raises ``FileNotFoundError`` if path or file does not exist."""
-        new_file_path = f"{move_to_path}/{os.path.split(self.full_path)[1]}"
+        new_file_path = f"{move_to_path}/{self.file_name}"
 
         if os.path.exists(new_file_path):
             if overwrite_if_exist:
@@ -128,7 +135,6 @@ class FilePackage(Package):
                     for file_path in directory.rglob("*"):
                         jeff = file_path.__str__().partition(directory.name + os.path.sep)[2]
                         archive.write(file_path, arcname=jeff)
-                        #sys.stdout.write(f"Zipped '{file_path.name}'.\n")
                         self.logger.debug(f"Zipped '{file_path.name}'.")
                 
                 else: # If debug logging level is not set we can zip much FASTER!
