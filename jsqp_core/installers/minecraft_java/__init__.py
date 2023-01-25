@@ -15,17 +15,18 @@ class MinecraftJava(Installer):
             self.__dot_minecraft_dir = dot_minecraft_dir.value
 
         super().__init__(
-            "Minecraft Java Edition"
+            display_name="Minecraft Java Edition"
         )
 
-    def install(self, package:pk.Package, overwrite_if_exist:bool=False) -> bool:
+    def install(self, package:pk.Package, overwrite_if_exist:bool=False, performance_mode:bool=False) -> bool:
         """Method to install a package into minecraft."""
         from ...packages.texture_pack import TexturePack
 
         if isinstance(package, TexturePack):
             # Zip the package if it is a folder.
             if package.file_type == pk.FileTypes.FOLDER:
-                package.zip()
+                package.zip(performance_mode=performance_mode)
+                
 
             # Move the package to JSQPCore install location directory.
             try:

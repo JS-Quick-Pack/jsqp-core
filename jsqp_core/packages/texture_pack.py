@@ -23,7 +23,11 @@ class TexturePack(FilePackage):
     def install_location(self) -> str:
         return super().install_location + "/resource_packs"
 
-    def install(self, installer:Installer=None, overwrite=False):
+    def is_this_a_texture_pack(self):
+        """Method that can detect """
+        ...
+
+    def install(self, installer:Installer=None, overwrite:bool=False, performance_mode:bool=False):
         """
         Method that allows you to install this pack into your Minecraft Game.
         
@@ -33,14 +37,14 @@ class TexturePack(FilePackage):
             installer = MinecraftJava()
             self.tp_logger.info(f"Installer was never specified so I'm defaulting to '{installer.display_name}'.")
 
-        if jsqp_core_logger.level == 10:
+        if (jsqp_core_logger.level == 10) and (performance_mode is False):
             self.tp_logger.warn(
                 "\u001b[33;20mTexture packs will take longer to install because logging level is set to DEBUG! Please set logging level to info unless you know what you are doing.\u001b[0m"
             )
 
         start_time = time.perf_counter()
 
-        installer.install(self, overwrite_if_exist=overwrite) #TODO: Add argument to change installer and add installer base class.
+        installer.install(self, overwrite_if_exist=overwrite, performance_mode=performance_mode) #TODO: Add argument to change installer and add installer base class.
 
         end_time = time.perf_counter()
 

@@ -4,6 +4,7 @@ import os
 import pathlib
 import shutil
 from io import FileIO
+import sys
 import zipfile
 from abc import ABC, abstractmethod
 
@@ -105,7 +106,7 @@ class FilePackage(Package):
         self.logger.info(f"Moved to '{move_to_path}'!")
         return True
 
-    def zip(self, zip_name:str=None) -> bool:
+    def zip(self, zip_name:str=None, performance_mode:bool=False) -> bool:
         """Turn file package into a zip if it is a folder."""
         if zip_name is None:
             zip_name = self.name + ".zip"
@@ -120,14 +121,19 @@ class FilePackage(Package):
             self.logger.info(f"Zipping {self.file_name} to '{path_to_zip}'...")
             
             # Zipping each file in directory.
-            # --------------------------------
+            # --------------------------------           
             with zipfile.ZipFile(path_to_zip, mode="w") as archive:
-                #TODO: Change this to set the texture pack folder as the root folder of zip.
 
-                for file_path in directory.rglob("*"):
-                    jeff = os.path.join(*(str(file_path).split(os.path.sep)[1:]))
-                    archive.write(file_path, arcname=jeff)
-                    self.logger.debug(f"Zipped '{file_path.name}'.")
+                if (jsqp_core_logger.level == 10) and (performance_mode == False): # DEBUG MODE!
+                    for file_path in directory.rglob("*"):
+                        jeff = file_path.__str__().partition(directory.name + os.path.sep)[2]
+                        archive.write(file_path, arcname=jeff)
+                        #sys.stdout.write(f"Zipped '{file_path.name}'.\n")
+                        self.logger.debug(f"Zipped '{file_path.name}'.")
+                
+                else: # If debug logging level is not set we can zip much FASTER!
+                    for file_path in directory.rglob("*"):
+                        archive.write(file_path, arcname=file_path.__str__().partition(directory.name + os.path.sep)[2])
             
             # Updating path and file object.
             self.__path_to_file = path_to_zip
