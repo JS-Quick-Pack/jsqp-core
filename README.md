@@ -14,4 +14,4 @@
 > **The goal of JSQPCore is to create an open-source library to download and manage resources like texture packs, mods, data packs, skins and a lot more from Minecraft. Alongside that, because of its 100% open-source nature, we plan to support as many Minecraft launchers and versions as possible making this library the most convenient to use. This library was meant to be build-in within the [JS:QP app](https://github.com/JS-Quick-Pack/jsqp-app) but I decided to separate it for the good of it being an open-source standalone library and becoming easier for us to manage.**
 
 
-*Dispite it being developed for Quick Pack you may use it just like a python libary under your own project. 😊*
+*Dispite it being developed for Quick Pack you may use it just like a python libary under your own project. 😊
