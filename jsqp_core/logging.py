@@ -1,10 +1,6 @@
 import os
 import sys
-import queue
-from threading import Thread
-
 import logging as log
-from logging.handlers import QueueHandler, QueueListener
 
 # Logging module stuff
 # -----------------------
@@ -18,15 +14,15 @@ class JSQPCustomFormatter(log.Formatter):
     red = "\u001b[31;20m"
     bold_red = "\u001b[31;1m"
     reset = "\u001b[0m"
-    
-    format = "[%(levelname)s]\u001b[0m (%(name)s) - %(message)s"
+
+    format_string = "[%(levelname)s]\u001b[0m (%(name)s) - %(message)s"
 
     FORMATS = {
-        log.DEBUG: pink_grey + format,
-        log.INFO: clay + format,
-        log.WARNING: yellow + format,
-        log.ERROR: red + format,
-        log.CRITICAL: bold_red + format
+        log.DEBUG: pink_grey + format_string,
+        log.INFO: clay + format_string,
+        log.WARNING: yellow + format_string,
+        log.ERROR: red + format_string,
+        log.CRITICAL: bold_red + format_string
     }
 
     def format(self, record):

@@ -39,7 +39,7 @@ class FilePackage(Package):
     def install_location(self) -> str:
         """Returns the path this package want's to be installed to."""
         return Paths().jsqp_core_appdata_dir + "/packages"
-    
+
     # Other attributes
     # -------------------
     @property
@@ -128,7 +128,7 @@ class FilePackage(Package):
             self.logger.info(f"Zipping {self.file_name} to '{path_to_zip}'...")
             
             # Zipping each file in directory.
-            # --------------------------------           
+            # --------------------------------
             with zipfile.ZipFile(path_to_zip, mode="w") as archive:
 
                 if (jsqp_core_logger.level == 10) and (performance_mode == False): # DEBUG MODE!

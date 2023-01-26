@@ -11,7 +11,7 @@ class MinecraftJava(Installer):
     def __init__(self, dot_minecraft_dir:str=DefaultPaths.DOT_MINECRAFT):
         self.__dot_minecraft_dir = dot_minecraft_dir
 
-        if isinstance(dot_minecraft_dir, DefaultPaths): 
+        if isinstance(dot_minecraft_dir, DefaultPaths):
             self.__dot_minecraft_dir = dot_minecraft_dir.value
 
         super().__init__(
@@ -42,5 +42,5 @@ class MinecraftJava(Installer):
                 package.move(package.install_location, overwrite_if_exist)
 
             return True
-            
+
         raise PackageNotSupported(package, self)

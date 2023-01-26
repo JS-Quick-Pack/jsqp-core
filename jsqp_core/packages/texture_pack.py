@@ -5,7 +5,6 @@ from .. import LoggerAdapter, jsqp_core_logger
 from ..objects.package import FilePackage
 from ..installers import Installer
 from .. import MinecraftJava
-from devgoldyutils.console import ConsoleColours
 
 class TexturePack(FilePackage):
     """
@@ -23,10 +22,10 @@ class TexturePack(FilePackage):
     def install_location(self) -> str:
         return super().install_location + "/resource_packs"
 
-    def install(self, installer:Installer=None, overwrite:bool=False, performance_mode:bool=False):
+    def install(self, installer:Installer = None, overwrite:bool = False, performance_mode:bool = False):
         """
         Method that allows you to install this pack into your Minecraft Game.
-        
+
         Defaults to Minecraft Java Edition.
         """
         if installer is None: # Default installer.

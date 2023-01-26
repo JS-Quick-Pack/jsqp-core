@@ -8,8 +8,10 @@ class Installer(ABC):
         self.display_name = display_name
         super().__init__()
 
-    def install(self, package:Package):
+    @abstractmethod
+    def install(self, package:Package, overwrite_if_exist:bool=False, performance_mode:bool=False):
         """Method to install a package that should be overridden."""
         ...
+
 
 from .minecraft_java import MinecraftJava
