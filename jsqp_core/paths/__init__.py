@@ -51,4 +51,4 @@ class Paths():
             self.logger.debug(f"Repairing '{path}'...")
             os.makedirs(path, exist_ok=True)
 
-        self.logger.info(f"Done creating/repairing appdata dir!")
+        self.logger.info("Done creating/repairing appdata dir!")

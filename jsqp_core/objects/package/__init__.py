@@ -78,7 +78,7 @@ class FilePackage(ABC, Package):
         return True
         
     def open_file(self, path_to_file:str) -> None|FileIO:
-        self.logger.debug(f"Checking if file exists...")
+        self.logger.debug("Checking if file exists...")
         if os.path.exists(path_to_file):
             if self.file_type == FileTypes.FOLDER:
                 self.logger.debug(f"'{self.name}' is a folder so the file object will be None and file name will be referred to as actual package name.")

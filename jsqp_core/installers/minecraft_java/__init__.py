@@ -1,5 +1,5 @@
 from ...objects import package as pk
-from ...errors import PackageNotSupported, PackageAlreadyExist
+from ...errors import PackageNotSupported
 from ...paths import Paths
 
 from .. import Installer
