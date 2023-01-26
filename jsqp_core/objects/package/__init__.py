@@ -4,7 +4,6 @@ import os
 import pathlib
 import shutil
 from io import FileIO
-import sys
 import zipfile
 from abc import ABC, abstractmethod
 
@@ -22,7 +21,7 @@ class Package(): #TODO: Might make this into a dataclass.
     def name(self) -> str:
         return self.__name
 
-class FilePackage(Package):
+class FilePackage(ABC, Package):
     """A package represented as an actual file."""
     def __init__(self, path_to_file:str):
         self.__path_to_file = path_to_file
@@ -62,7 +61,7 @@ class FilePackage(Package):
         """Returns file name even if the file object is unavailable."""
         return os.path.split(self.full_path)[1]
 
-    def file_rename(self, new_name:str, overwrite_if_exist:bool=True):
+    def file_rename(self, new_name:str, overwrite_if_exist:bool = True):
         """Renames the package's file. You got to also include file extension here."""
         new_file_path = (lambda x: "" if x == "." else x)(os.path.split(self.path)[0]) + new_name
 
@@ -92,7 +91,7 @@ class FilePackage(Package):
             
         raise JSQPCoreError(f"File package at '{os.path.abspath(path_to_file)}' cannot be found.")
     
-    def move(self, move_to_path:str, overwrite_if_exist:bool=False) -> bool:
+    def move(self, move_to_path:str, overwrite_if_exist:bool = False) -> bool:
         """Allows you to move this file package to another location. Raises ``FileNotFoundError`` if path or file does not exist."""
         new_file_path = f"{move_to_path}/{self.file_name}"
 
@@ -113,7 +112,7 @@ class FilePackage(Package):
         self.logger.info(f"Moved to '{move_to_path}'!")
         return True
 
-    def zip(self, zip_name:str=None, performance_mode:bool=False) -> bool:
+    def zip(self, zip_name:str = None, performance_mode:bool = False) -> bool:
         """Turn file package into a zip if it is a folder."""
         if zip_name is None:
             zip_name = self.name + ".zip"

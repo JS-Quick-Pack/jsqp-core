@@ -8,7 +8,7 @@ from .default_paths import DefaultPaths
 
 class MinecraftJava(Installer):
     """Class that handles installation of minecraft java edition packs."""
-    def __init__(self, dot_minecraft_dir:str=DefaultPaths.DOT_MINECRAFT):
+    def __init__(self, dot_minecraft_dir:str = DefaultPaths.DOT_MINECRAFT):
         self.__dot_minecraft_dir = dot_minecraft_dir
 
         if isinstance(dot_minecraft_dir, DefaultPaths):
@@ -18,7 +18,7 @@ class MinecraftJava(Installer):
             display_name="Minecraft Java Edition"
         )
 
-    def install(self, package:pk.Package, overwrite_if_exist:bool=False, performance_mode:bool=False) -> bool:
+    def install(self, package:pk.Package, overwrite_if_exist:bool = False, performance_mode:bool = False) -> bool:
         """Method to install a package into minecraft."""
         from ...packages.texture_pack import TexturePack
 
