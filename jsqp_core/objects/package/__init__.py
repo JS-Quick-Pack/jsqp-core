@@ -130,7 +130,7 @@ class FilePackage(ABC, Package):
             # --------------------------------
             with zipfile.ZipFile(path_to_zip, mode="w") as archive:
 
-                if jsqp_core_logger.level == 10 and performance_mode == False: # DEBUG MODE!
+                if jsqp_core_logger.level == 10 and performance_mode is False: # DEBUG MODE!
                     for file_path in directory.rglob("*"):
                         jeff = file_path.__str__().partition(directory.name + os.path.sep)[2]
                         archive.write(file_path, arcname=jeff)
