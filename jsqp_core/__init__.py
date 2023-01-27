@@ -8,6 +8,11 @@ jsqp_core_logger = add_custom_handler(log.getLogger(JSQP_CORE_LOGGER_NAME)); jsq
 
 from .errors import *
 
+#  Useful objects
+# ----------------
+from .objects.mc_versions import MCVersions
+
+
 #  Installers
 # ------------
 

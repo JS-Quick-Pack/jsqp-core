@@ -1,17 +1,32 @@
+from __future__ import annotations
+
 import time
 
 from .. import LoggerAdapter, jsqp_core_logger
 
+from ..objects.mc_versions import MCVersions
 from ..objects.package import FilePackage
 from ..installers import Installer
 from .. import MinecraftJava
 
 class TexturePack(FilePackage):
     """
-    Class that allows you to represent a file as a texture pack and install it to a minecraft game.
+    Class that allows you to represent a file as a texture pack and install it to your minecraft game.
     """
-    def __init__(self, path_to_file: str):
+    def __init__(self, path_to_file: str, mc_version:MCVersions|int=None):
         self.tp_logger = LoggerAdapter(jsqp_core_logger, "TexturePack")
+
+        # Set/Detect minecraft version.
+        # --------------------------------
+        self.__mc_version = None
+        if not mc_version is None:
+            if isinstance(mc_version, MCVersions):
+                self.__mc_version = mc_version.value
+            else:
+                self.__mc_version = mc_version
+        else:
+            #TODO: Detect the minecraft version!
+            pass
 
         #TODO: Change path_to_file to actual texture pack directory.
         #TODO: Name package to actual texture pack name.
@@ -21,6 +36,11 @@ class TexturePack(FilePackage):
     @property
     def install_location(self) -> str:
         return super().install_location + "/resource_packs"
+
+    @property
+    def mc_version(self) -> int:
+        """Returns the minecraft version this pack was made for."""
+        return self.__mc_version
 
     def install(self, installer:Installer = None, overwrite:bool = False, performance_mode:bool = False, copy_it:bool = False):
         """
