@@ -46,6 +46,12 @@ class FilePackage(Package):
         """Returns the path of this package."""
         return self.__path_to_file
 
+    def update_path(self, new_path:str):
+        """Updates file package's path."""
+        self.__path_to_file = new_path
+        self.logger.debug(f"Updated file package path to '{new_path}'!")
+        return self
+
     @property
     def full_path(self) -> str:
         """Returns the full path location of this package."""
@@ -56,10 +62,32 @@ class FilePackage(Package):
         """Returns the file object of this package. Returns none if it doesn't exist."""
         return self.__file
 
+    def update_file(self, new_file:FileIO):
+        """Updates file object to new file object."""
+        self.__file = new_file
+        self.logger.debug("Updated file object!")
+        return self
+
     @property
     def file_name(self) -> str|None:
         """Returns file name even if the file object is unavailable."""
         return os.path.split(self.full_path)[1]
+
+    @property
+    def file_type(self) -> FileTypes|None:
+        """Returns the type of the actual file. Is it a folder? Is it a file?"""
+        
+        if os.path.isfile(self.__path_to_file):
+            if os.path.splitext(self.__path_to_file)[-1] == ".zip":
+                return FileTypes.ZIP
+            else:
+                return FileTypes.FILE
+        if os.path.isdir(self.__path_to_file):
+            return FileTypes.FOLDER
+        if os.path.islink(self.__path_to_file):
+            return FileTypes.SYMBOLIC_LINK
+
+        return None
 
     def file_rename(self, new_name:str, overwrite_if_exist:bool = True):
         """Renames the package's file. You got to also include file extension here."""
@@ -77,7 +105,7 @@ class FilePackage(Package):
         else:
             os.rename(self.full_path, new_file_path)
 
-        self.__path_to_file = new_file_path
+        self.update_path(new_file_path)
         return True
         
     def open_file(self, path_to_file:str) -> None|FileIO:
@@ -115,9 +143,9 @@ class FilePackage(Package):
             self.delete()
 
         # Update path
-        self.__path_to_file = move_to_path
+        self.update_path(new_file_path)
 
-        self.logger.info(f"Moved to '{move_to_path}'!")
+        self.logger.info(f"Moved to '{new_file_path}'!")
         return True
 
     def zip(self, zip_name:str = None, performance_mode:bool = False) -> bool:
@@ -151,8 +179,8 @@ class FilePackage(Package):
             self.logger.info(f"Done zipping to '{path_to_zip}'!")
             
             # Updating path and file object.
-            self.__path_to_file = path_to_zip
-            self.__file = self.open_file(path_to_zip)
+            self.update_path(path_to_zip)
+            self.update_file(self.open_file(path_to_zip))
 
             return True
 
@@ -169,19 +197,3 @@ class FilePackage(Package):
         os.remove(self.full_path)
         self.logger.debug(f"'{self.full_path}' deleted!")
         return True
-
-    @property
-    def file_type(self) -> FileTypes|None:
-        """Returns the type of the actual file. Is it a folder? Is it a file?"""
-        
-        if os.path.isfile(self.__path_to_file):
-            if os.path.splitext(self.__path_to_file)[-1] == ".zip":
-                return FileTypes.ZIP
-            else:
-                return FileTypes.FILE
-        if os.path.isdir(self.__path_to_file):
-            return FileTypes.FOLDER
-        if os.path.islink(self.__path_to_file):
-            return FileTypes.SYMBOLIC_LINK
-
-        return None
