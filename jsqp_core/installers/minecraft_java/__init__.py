@@ -18,7 +18,7 @@ class MinecraftJava(Installer):
             display_name="Minecraft Java Edition"
         )
 
-    def install(self, package:pk.Package, overwrite_if_exist:bool = False, performance_mode:bool = False) -> bool:
+    def install(self, package:pk.Package, overwrite_if_exist:bool = False, performance_mode:bool = False, copy_it:bool = False) -> bool:
         """Method to install a package into minecraft."""
         from ...packages.texture_pack import TexturePack
 
@@ -31,7 +31,7 @@ class MinecraftJava(Installer):
 
             # Move the package to JSQPCore install location directory.
             try:
-                package.move(package.install_location, overwrite_if_exist)
+                package.move(package.install_location, overwrite_if_exist, copy_it)
             except FileNotFoundError:
                 # Repair and try again if file is not found.
                 # -------------------------------------------
@@ -39,7 +39,7 @@ class MinecraftJava(Installer):
                     package.install_location
                 ])
 
-                package.move(package.install_location, overwrite_if_exist)
+                package.move(package.install_location, overwrite_if_exist, copy_it)
 
             return True
 

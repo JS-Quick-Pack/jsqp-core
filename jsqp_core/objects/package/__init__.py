@@ -5,7 +5,7 @@ import pathlib
 import shutil
 from io import FileIO
 import zipfile
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 
 from ... import jsqp_core_logger, LoggerAdapter
 from .file_types import FileTypes
@@ -21,7 +21,7 @@ class Package(): #TODO: Might make this into a dataclass.
     def name(self) -> str:
         return self.__name
 
-class FilePackage(ABC, Package):
+class FilePackage(Package):
     """A package represented as an actual file."""
     def __init__(self, path_to_file:str):
         self.__path_to_file = path_to_file
@@ -63,7 +63,10 @@ class FilePackage(ABC, Package):
 
     def file_rename(self, new_name:str, overwrite_if_exist:bool = True):
         """Renames the package's file. You got to also include file extension here."""
-        new_file_path = (lambda x: "" if x == "." else x)(os.path.split(self.path)[0]) + new_name
+        new_file_path = os.path.split(self.path)[0] + "/" + new_name
+
+        if os.path.abspath(new_file_path) == self.full_path:
+            return True
 
         if os.path.exists(new_file_path):
             if overwrite_if_exist:
@@ -91,7 +94,7 @@ class FilePackage(ABC, Package):
             
         raise JSQPCoreError(f"File package at '{os.path.abspath(path_to_file)}' cannot be found.")
     
-    def move(self, move_to_path:str, overwrite_if_exist:bool = False) -> bool:
+    def move(self, move_to_path:str, overwrite_if_exist:bool = False, copy_it:bool = False) -> bool:
         """Allows you to move this file package to another location. Raises ``FileNotFoundError`` if path or file does not exist."""
         new_file_path = f"{move_to_path}/{self.file_name}"
 
@@ -100,11 +103,16 @@ class FilePackage(ABC, Package):
                 old_package = FilePackage(new_file_path)
                 old_package.delete()
             else:
-                self.delete()
+                if copy_it is False: # Don't delete if I am asked to only copy the file while moving.
+                    self.delete()
                 raise PackageAlreadyExist(self, new_file_path)
 
         self.logger.info(f"Moving '{self.file_name}' to '{new_file_path}'...")
-        shutil.move(self.full_path, move_to_path)
+        shutil.copy2(self.full_path, move_to_path)
+
+        # Delete if the user only wants to move the file.
+        if copy_it is False:
+            self.delete()
 
         # Update path
         self.__path_to_file = move_to_path
@@ -139,6 +147,8 @@ class FilePackage(ABC, Package):
                 else: # If debug logging level is not set we can zip much FASTER!
                     for file_path in directory.rglob("*"):
                         archive.write(file_path, arcname=file_path.__str__().partition(directory.name + os.path.sep)[2])
+
+            self.logger.info(f"Done zipping to '{path_to_zip}'!")
             
             # Updating path and file object.
             self.__path_to_file = path_to_zip
