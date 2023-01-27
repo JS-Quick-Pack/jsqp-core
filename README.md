@@ -4,6 +4,8 @@
   
   <sub> An open source minecraft package management library used under JS:QP. </sub>
   
+  [![Codacy Badge](https://app.codacy.com/project/badge/Grade/4c8d342226664bf284cb074465430b9c)](https://www.codacy.com/gh/JS-Quick-Pack/jsqp-core/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=JS-Quick-Pack/jsqp-core&amp;utm_campaign=Badge_Grade)
+  
 </div>
 
 #### ⚠ Warning: ``JSQPCore`` is in very deep development so some utils and code will be incomplete. Give it a few months to develop and mature.
