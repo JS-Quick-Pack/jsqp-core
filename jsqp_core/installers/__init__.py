@@ -9,7 +9,7 @@ class Installer(ABC):
         super().__init__()
 
     @abstractmethod
-    def install(self, package:Package, overwrite_if_exist:bool = False, performance_mode:bool = False):
+    def install(self, package:Package, overwrite_if_exist:bool = False, performance_mode:bool = False, copy_it:bool = False):
         """Method to install a package that should be overridden."""
         ...
 

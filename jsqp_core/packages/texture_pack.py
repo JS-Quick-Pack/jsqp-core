@@ -39,7 +39,7 @@ class TexturePack(FilePackage):
 
         start_time = time.perf_counter()
 
-        installer.install(self, overwrite_if_exist=overwrite, performance_mode=performance_mode, copy_it=copy_it) #TODO: Add argument to change installer and add installer base class.
+        installer.install(self, overwrite_if_exist=overwrite, performance_mode=performance_mode, copy_it=copy_it)
 
         end_time = time.perf_counter()
 
