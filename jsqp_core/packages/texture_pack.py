@@ -22,7 +22,7 @@ class TexturePack(FilePackage):
     def install_location(self) -> str:
         return super().install_location + "/resource_packs"
 
-    def install(self, installer:Installer = None, overwrite:bool = False, performance_mode:bool = False):
+    def install(self, installer:Installer = None, overwrite:bool = False, performance_mode:bool = False, copy_it:bool = False):
         """
         Method that allows you to install this pack into your Minecraft Game.
 
@@ -39,7 +39,7 @@ class TexturePack(FilePackage):
 
         start_time = time.perf_counter()
 
-        installer.install(self, overwrite_if_exist=overwrite, performance_mode=performance_mode) #TODO: Add argument to change installer and add installer base class.
+        installer.install(self, overwrite_if_exist=overwrite, performance_mode=performance_mode, copy_it=copy_it)
 
         end_time = time.perf_counter()
 
