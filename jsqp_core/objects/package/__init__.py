@@ -17,17 +17,24 @@ class Package(): #TODO: Might make this into a dataclass.
     def __init__(self, name:str):
         self.__name = name
 
+        self.logger = LoggerAdapter(jsqp_core_logger, "Package")
+
     @property
     def name(self) -> str:
         return self.__name
 
+    def update_name(self, new_name:str):
+        self.__name = new_name
+        self.logger.debug(f"Updated package name to '{new_name}'!")
+        return self
+
 class FilePackage(Package):
     """A package represented as an actual file."""
-    def __init__(self, path_to_file:str):
-        self.__path_to_file = path_to_file
+    def __init__(self, path_to_file:str, package_name:str="Nameless Package"):
+        self._path_to_file = path_to_file
         self.logger = LoggerAdapter(jsqp_core_logger, "FilePackage")
 
-        super().__init__("UwUDummyName")
+        super().__init__(package_name)
 
         self.__file = self.open_file(path_to_file)
 
@@ -44,18 +51,18 @@ class FilePackage(Package):
     @property
     def path(self) -> str:
         """Returns the path of this package."""
-        return self.__path_to_file
+        return self._path_to_file
 
     def update_path(self, new_path:str):
         """Updates file package's path."""
-        self.__path_to_file = new_path
+        self._path_to_file = new_path
         self.logger.debug(f"Updated file package path to '{new_path}'!")
         return self
 
     @property
     def full_path(self) -> str:
         """Returns the full path location of this package."""
-        return os.path.abspath(self.__path_to_file)
+        return os.path.abspath(self._path_to_file)
 
     @property
     def file(self) -> FileIO|None:
@@ -77,14 +84,14 @@ class FilePackage(Package):
     def file_type(self) -> FileTypes|None:
         """Returns the type of the actual file. Is it a folder? Is it a file?"""
         
-        if os.path.isfile(self.__path_to_file):
-            if os.path.splitext(self.__path_to_file)[-1] == ".zip":
+        if os.path.isfile(self._path_to_file):
+            if os.path.splitext(self._path_to_file)[-1] == ".zip":
                 return FileTypes.ZIP
             else:
                 return FileTypes.FILE
-        if os.path.isdir(self.__path_to_file):
+        if os.path.isdir(self._path_to_file):
             return FileTypes.FOLDER
-        if os.path.islink(self.__path_to_file):
+        if os.path.islink(self._path_to_file):
             return FileTypes.SYMBOLIC_LINK
 
         return None

@@ -4,6 +4,7 @@ import time
 
 from .. import LoggerAdapter, jsqp_core_logger
 
+from ..utils.texture_packs.texture_pack_parser import TexturePackParser
 from ..objects.mc_versions import MCVersions
 from ..objects.package import FilePackage
 from ..installers import Installer
@@ -15,6 +16,12 @@ class TexturePack(FilePackage):
     """
     def __init__(self, path_to_file: str, mc_version:MCVersions|int=None):
         self.tp_logger = LoggerAdapter(jsqp_core_logger, "TexturePack")
+
+        super().__init__(
+            path_to_file, package_name="Nameless Texture Pack"
+        )
+
+        self.pack_parser = TexturePackParser(self)
 
         # Set/Detect minecraft version.
         # --------------------------------
@@ -28,17 +35,18 @@ class TexturePack(FilePackage):
             #TODO: Detect the minecraft version!
             pass
 
-        #TODO: Change path_to_file to actual texture pack directory.
-        #TODO: Name package to actual texture pack name.
+        # Change path_to_file to actual texture pack root directory.
+        self.update_path(self.pack_parser.root_path)
 
-        super().__init__(path_to_file)
+        # Name package to actual texture pack name.
+        self.update_name(self.pack_parser.actual_name)
 
     @property
     def install_location(self) -> str:
         return super().install_location + "/resource_packs"
 
     @property
-    def mc_version(self) -> int:
+    def mc_version(self) -> int|None:
         """Returns the minecraft version this pack was made for."""
         return self.__mc_version
 
