@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+from ... import LoggerAdapter, jsqp_core_logger
 from ...objects.package import FilePackage
 from ...errors import JSQPCoreError
 
@@ -14,6 +15,8 @@ class TexturePackParser():
     def __init__(self, texture_pack:FilePackage) -> None:
         self.texture_pack = texture_pack
 
+        self.parser_logger = LoggerAdapter(jsqp_core_logger, "TexturePackParser")
+
         self.__path_to_assets = ""
 
         assets_exist, assets_path = next(
@@ -23,6 +26,8 @@ class TexturePackParser():
 
         if not assets_exist:
             raise AssetsFolderNotFound(texture_pack)
+
+        self.parser_logger.info(f"Parsed the texture pack '{self.actual_name}'!")
     
     @property
     def root_path(self) -> str|None:
