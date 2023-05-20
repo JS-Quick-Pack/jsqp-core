@@ -5,7 +5,7 @@ import sys
 from typing import List
 from devgoldyutils import LoggerAdapter
 
-from .. import core_logger
+from .. import jsqp_core_logger
 from ..errors import OSNotSupported
 
 class Paths():
@@ -14,7 +14,7 @@ class Paths():
     def __init__(self):
         self.__platform = sys.platform
 
-        self.logger = LoggerAdapter(core_logger, "Paths")
+        self.logger = LoggerAdapter(jsqp_core_logger, "Paths")
 
         # Creates APPDATA directory if it doesn't exist.
         # ----------------------------------------------

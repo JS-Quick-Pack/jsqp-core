@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from ... import LoggerAdapter, jsqp_core_logger
+from devgoldyutils import LoggerAdapter
+
+from ... import jsqp_core_logger
 from ...objects.package import FilePackage
 from ...errors import JSQPCoreError
 

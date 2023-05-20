@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import time
+from devgoldyutils import LoggerAdapter
 
-from .. import LoggerAdapter, jsqp_core_logger
+from .. import jsqp_core_logger
 
 from ..utils.texture_packs.texture_pack_parser import TexturePackParser
 from ..objects.mc_versions import MCVersions
@@ -14,11 +15,11 @@ class TexturePack(FilePackage):
     """
     Class that allows you to represent a file as a texture pack and install it to your minecraft game.
     """
-    def __init__(self, path_to_file: str, mc_version:MCVersions|int=None):
+    def __init__(self, path_to_texture_pack: str, mc_version:MCVersions|int=None):
         self.tp_logger = LoggerAdapter(jsqp_core_logger, "TexturePack")
 
         super().__init__(
-            path_to_file, package_name="Nameless Texture Pack"
+            path_to_texture_pack, package_name = "Nameless Texture Pack"
         )
 
         self.pack_parser = TexturePackParser(self)

@@ -6,13 +6,14 @@ import shutil
 from io import FileIO
 import zipfile
 from abc import abstractmethod
+from devgoldyutils import LoggerAdapter
 
-from ... import jsqp_core_logger, LoggerAdapter
+from ... import jsqp_core_logger
 from .file_types import FileTypes
 from ...errors import PackageAlreadyExist, JSQPCoreError
 from ...paths import Paths
 
-class Package(): #TODO: Might make this into a dataclass.
+class Package():
     """The base class for a package."""
     def __init__(self, name:str):
         self.__name = name
@@ -30,8 +31,13 @@ class Package(): #TODO: Might make this into a dataclass.
 
 class FilePackage(Package):
     """A package represented as an actual file."""
-    def __init__(self, path_to_file:str, package_name:str="Nameless Package"):
-        self._path_to_file = path_to_file
+    def __init__(
+        self, 
+        path_to_file: str, 
+        package_name: str = None, 
+        default_package_name: str = "Nameless Package"
+    ):
+        self.__path_to_file = path_to_file
         self.logger = LoggerAdapter(jsqp_core_logger, "FilePackage")
 
         super().__init__(package_name)
@@ -50,26 +56,26 @@ class FilePackage(Package):
     # -------------------
     @property
     def path(self) -> str:
-        """Returns the path of this package."""
-        return self._path_to_file
-
-    def update_path(self, new_path:str):
-        """Updates file package's path."""
-        self._path_to_file = new_path
+        """Returns the full path to this package. If you want relative path use: :py:meth:`~jsqp_core.objects.package.FilePackage.relative_path`."""
+        return os.path.abspath(self.__path_to_file)
+    
+    @path.setter
+    def path(self, new_path: str):
+        # We use setters here for the sole purpose of logging.
+        self.__path_to_file = new_path
         self.logger.debug(f"Updated file package path to '{new_path}'!")
-        return self
 
     @property
-    def full_path(self) -> str:
-        """Returns the full path location of this package."""
-        return os.path.abspath(self._path_to_file)
+    def relative_path(self) -> str:
+        """Returns the relative path of this package."""
+        return self.__path_to_file
 
     @property
-    def file(self) -> FileIO|None:
-        """Returns the file object of this package. Returns none if it doesn't exist."""
+    def file(self) -> FileIO | None:
+        """Returns the file object of this package. Returns none if this package doesn't have a file object."""
         return self.__file
 
-    def update_file(self, new_file:FileIO):
+    def update_file(self, new_file: FileIO):
         """Updates file object to new file object."""
         self.__file = new_file
         self.logger.debug("Updated file object!")

@@ -1,30 +1,29 @@
 from __future__ import annotations
 
 from devgoldyutils import Colours
-from . import core_logger
+from . import jsqp_core_logger
 
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    ...
-    #from .installers import Installer
-    #from .objects.package import Package
+    from .installers import Installer
+    from .objects.package import Package
 
 class JSQPCoreError(Exception):
     """Raises whenever there's a known error in jsqp core."""
     def __init__(self, message: str):
-        core_logger.error(message)
+        jsqp_core_logger.error(message)
         super().__init__(Colours.RED(message))
 
 class PackageAlreadyExist(JSQPCoreError):
-    def __init__(self, package: "Package", location_where_it_exists: str):
+    def __init__(self, package: Package, location_where_it_exists: str):
         super().__init__(
             f"The package '{package.name}' already exists under '{location_where_it_exists}'! Although you can ask me to rename or overwrite it by setting the correct flags/parameters."
         )
 
 class PackageNotSupported(JSQPCoreError):
     """Raises whenever a package is not supported by an installer."""
-    def __init__(self, package: "Package", installer: "Installer"):
+    def __init__(self, package: Package, installer: Installer):
         super().__init__(
             f"'{package.__class__.__name__}()' is not supported in the '{installer.__class__.__name__}()' installer. Hence '{package.name}' can't be installed."
         )
