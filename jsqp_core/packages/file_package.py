@@ -41,7 +41,7 @@ class FilePackage(Package):
     @property
     @abstractmethod
     def install_location(self) -> str:
-        """Returns the path this package want's to be installed to."""
+        """Returns the jsqp install location for this file package."""
         return Paths().jsqp_core_appdata_dir + "/packages"
 
     @property

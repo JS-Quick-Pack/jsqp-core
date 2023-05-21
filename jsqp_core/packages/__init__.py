@@ -17,4 +17,3 @@ class Package():
     def name(self, value: str):
         self.__name = value
         self.logger.debug(f"Updated package name to '{value}'!")
-

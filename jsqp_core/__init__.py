@@ -13,6 +13,8 @@ core_logger = add_custom_handler(
 
 # Module imports
 # ---------------
-
+from .packages import (
+    TexturePack
+)
 
 __version__: Final[str] = "1.0dev1"
