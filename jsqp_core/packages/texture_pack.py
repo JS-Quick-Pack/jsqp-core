@@ -8,7 +8,7 @@ from pathlib import Path
 from .. import core_logger, utils
 from ..mc_versions import MCVersions
 from .file_package import FilePackage
-#from ..launchers.minecraft import Minecraft
+from ..launchers.minecraft import Minecraft
 
 if TYPE_CHECKING:
     from ..launchers import Launcher
@@ -25,15 +25,9 @@ class TexturePack(FilePackage):
         super().__init__(
             path_to_texture_pack
         )
+        self.__mc_ver = mc_version
 
         self.pack_parser = utils.TexturePackParser(self)
-
-        # Set/Detect minecraft version.
-        # --------------------------------
-        if mc_version is not None:
-            self.__mc_version = mc_version.value if isinstance(mc_version, MCVersions) else mc_version
-        else:
-            self.__mc_version = self.pack_parser.version
 
         # Change path_to_file to actual texture pack root directory.
         self.path = Path(self.pack_parser.root_path)
@@ -48,9 +42,12 @@ class TexturePack(FilePackage):
         return super().install_location + "/resource_packs"
 
     @property
-    def mc_version(self) -> int | None:
+    def mc_version(self) -> int:
         """Returns the minecraft version this pack was made for."""
-        return self.__mc_version
+        if self.__mc_ver is not None:
+            return self.__mc_ver.value if isinstance(self.__mc_ver, MCVersions) else self.__mc_ver
+
+        return self.pack_parser.version
 
     def install(self, launcher: Launcher = None, overwrite: bool = False, performance_mode: bool = False, copy_it: bool = False):
         """
@@ -59,22 +56,25 @@ class TexturePack(FilePackage):
         Defaults to Minecraft Java Edition.
         """
         if launcher is None: # Default launcher is the official minecraft launcher.
-            installer = MinecraftJava()
-            self.tp_logger.info(f"Installer was never specified so I'm defaulting to '{installer.display_name}'.")
+            launcher = Minecraft()
+            self.logger.info(f"Launcher was not specified so I'm defaulting to '{launcher.display_name}'.")
+            if not performance_mode: time.sleep(1.5)
 
-        if (jsqp_core_logger.level == 10) and (performance_mode is False):
-            self.tp_logger.warn(
+        if (core_logger.level == 10) and (performance_mode is False):
+            self.logger.warn(
                 "\u001b[33;20mTexture packs will take longer to install because logging level is set to DEBUG! Please set logging level to info unless you know what you are doing.\u001b[0m"
             )
+            if not performance_mode: time.sleep(2)
 
         start_time = time.perf_counter()
 
-        installer.install(self, overwrite_if_exist=overwrite, performance_mode=performance_mode, copy_it=copy_it)
+        launcher.install(self, overwrite_if_exist=overwrite, performance_mode=performance_mode)
 
         end_time = time.perf_counter()
 
-        self.tp_logger.info(f"⌛ Installed '{self.name}' in {end_time - start_time:0.4f} seconds!")
+        # TODO: We should probably move this to the launchers's base functions.
+        self.logger.info(f"⌛ Installed '{self.name}' in {end_time - start_time:0.4f} seconds!")
 
     def remove(self):
-        """Method that allows you to remove this pack from your game."""
+        """Method that allows you to remove this pack from your minecraft game."""
         ...

@@ -1,16 +1,19 @@
 from __future__ import annotations
 
 import os
+import json
+from deepdiff import DeepDiff
 from pathlib import Path
-from typing import TYPE_CHECKING
-from devgoldyutils import LoggerAdapter
+from typing import TYPE_CHECKING, Dict
+from devgoldyutils import LoggerAdapter, Colours
 
 from ... import core_logger
+from ...mc_versions import MCVersions
 from ...errors import JSQPCoreError
+from . import maps
 
 if TYPE_CHECKING:
     from ...packages.texture_pack import TexturePack
-    from ...mc_versions import MCVersions
 
 class AssetsFolderNotFound(JSQPCoreError):
     def __init__(self, texture_pack: TexturePack):
@@ -28,7 +31,10 @@ class TexturePackParser():
         self.__path_to_assets = ""
         """The path to the assets folder, this is automatically assigned by ``.__find_assets_folder()``."""
 
-        assets_exist = next(self.__find_assets_folder(self.__get_folder_structure()), (False, None))[0]
+        self.folder_structure = self.__get_folder_structure()
+        """Folder structure of this texture pack."""
+
+        assets_exist = next(self.__find_assets_folder(self.folder_structure), False)
 
         if not assets_exist:
             raise AssetsFolderNotFound(texture_pack)
@@ -46,7 +52,7 @@ class TexturePackParser():
     @property
     def root_path(self) -> str:
         """Returns the real root path of this texture pack. E.g. where the ``assets``, ``pack.mcmeta`` and ``pack.png`` is stored."""
-        return self.texture_pack.path + (lambda x: "" if x == "/" else x)(os.path.split(self.__path_to_assets)[0])
+        return str(self.texture_pack.path) + (lambda x: "" if x == "/" else x)(os.path.split(self.__path_to_assets)[0])
 
     @property
     def assets_path(self) -> str:
@@ -57,10 +63,26 @@ class TexturePackParser():
         """Returns the minecraft version this pack belongs to."""
         return self.detect_version()
     
-    def detect_version() -> MCVersions:
+    def detect_version(self) -> MCVersions:
         """Tries to detect the game version this pack was made for."""
         # TODO: the funny code.
-        ...
+        version_diff: Dict[int, MCVersions] = {}
+
+        for version in MCVersions:
+            json_file = open(f"{os.path.split(maps.__file__)[0]}/{version.value}.json", mode="r")
+            json_file = json.load(json_file)
+
+            difference = DeepDiff(json_file, self.folder_structure)
+
+            version_diff[len(difference.affected_paths)] = version
+
+        detected_version = version_diff[sorted(version_diff)[0]]
+        self.logger.info(f"Detected Version -> {Colours.GREEN.apply(detected_version.name)}")
+        self.logger.debug(
+            f"Version difference = {Colours.PINK_GREY.apply(str([f'{version_diff[x].name} ({x})' for x in sorted(version_diff)]))}"
+        )
+
+        return detected_version
 
     def __get_folder_structure(self) -> dict:
         """Returns the folder structure of this texture pack."""
@@ -92,9 +114,10 @@ class TexturePackParser():
             for k, v in folder_structure.items():
                 if not k == "files":
                     self.__path_to_assets += f"/{k}"
+                    self.folder_structure = folder_structure
 
                 if k == "assets":
-                    yield True, self.__path_to_assets
+                    yield True
 
                 if isinstance(v, dict):
                     for result in self.__find_assets_folder(v):

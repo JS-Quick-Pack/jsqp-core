@@ -24,6 +24,7 @@ dependencies = [
     "requests",
     "importlib-metadata; python_version<'3.8'",
     "devgoldyutils>=2.5.1",
+    "deepdiff"
 ]
 
 dynamic = ["version"]
