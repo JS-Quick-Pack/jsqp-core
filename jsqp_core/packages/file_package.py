@@ -32,6 +32,9 @@ class FilePackage(Package):
         if isinstance(path, str):
             path = Path(path)
 
+        if not path.exists():
+            raise errors.FilePackageDoesNotExist(path)
+
         self.__path = path
 
         super().__init__(
@@ -66,20 +69,19 @@ class FilePackage(Package):
         return None
 
     @property
-    def type(self) -> FileTypes | None:
+    def type(self) -> FileTypes:
         """Returns the type of FilePackage. Is it a folder? Is it a file?"""
 
         if self.path.is_file():
             if self.path.suffix == ".zip":
                 return FileTypes.ZIP
-            else:
-                return FileTypes.FILE
+
+            return FileTypes.FILE
+    
         elif self.path.is_dir():
             return FileTypes.FOLDER
         elif self.path.is_symlink():
             return FileTypes.SYMBOLIC_LINK
-
-        return None
     
     def move(self, path: str, overwrite_if_exist: bool = False, copy_it: bool = False) -> bool:
         """Allows you to move this file package to another location. Raises ``FileNotFoundError`` if path or file does not exist."""

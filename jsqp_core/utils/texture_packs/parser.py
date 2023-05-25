@@ -3,7 +3,6 @@ from __future__ import annotations
 import os
 import json
 from deepdiff import DeepDiff
-from zipfile import ZipFile
 from typing import TYPE_CHECKING, Dict
 from devgoldyutils import LoggerAdapter, Colours, pprint
 
@@ -17,11 +16,12 @@ if TYPE_CHECKING:
 
 class AssetsFolderNotFound(JSQPCoreError):
     def __init__(self, texture_pack: TexturePack, map: dict):
-        pprint(map)
+        pprint(map, depth=8, max_seq_len=3)
         texture_pack.logger.info(Colours.ORANGE.apply("^ The texture pack's map has been printed above ^"))
 
         super().__init__(
-            f"The assets folder for the texture pack at '{texture_pack.path}' can't be found therefore this texture pack can't be phrased correctly!"
+            f"The assets folder for the texture pack at '{texture_pack.path}' can't be found therefore this texture pack can't be phrased correctly!" \
+            f"{Colours.BLUE} Make sure your pack is structured correctly and has an assets folder.{Colours.RESET}"
         )
 
 class TexturePackParser():
@@ -38,6 +38,8 @@ class TexturePackParser():
         """Folder structure of this texture pack."""
 
         assets_exist = next(self.__find_assets_folder(self.map), False)
+
+        print(self.map)
 
         if not assets_exist:
             raise AssetsFolderNotFound(texture_pack, self.map)
@@ -120,7 +122,6 @@ class TexturePackParser():
             for k, v in folder_structure.items():
                 if not k == "files":
                     self.__path_to_assets += f"/{k}"
-                    self.map = folder_structure
 
                 if k == "assets":
                     yield True

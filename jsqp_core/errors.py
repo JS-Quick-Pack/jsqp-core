@@ -3,6 +3,7 @@ from __future__ import annotations
 from devgoldyutils import Colours
 from . import core_logger
 
+import pathlib
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -19,6 +20,12 @@ class PackageAlreadyExist(JSQPCoreError):
     def __init__(self, package: Package, location_where_it_exists: str):
         super().__init__(
             f"The package '{package.name}' already exists under '{location_where_it_exists}'! Although you can ask me to rename or overwrite it by setting the correct flags/parameters."
+        )
+
+class FilePackageDoesNotExist(JSQPCoreError):
+    def __init__(self, path: pathlib.Path):
+        super().__init__(
+            f"'{str(path)}' does not exist. Are you sure you typed it correctly."
         )
 
 class PackageNotSupported(JSQPCoreError):
