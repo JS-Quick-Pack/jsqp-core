@@ -39,8 +39,6 @@ class TexturePackParser():
 
         assets_exist = next(self.__find_assets_folder(self.map), False)
 
-        print(self.map)
-
         if not assets_exist:
             raise AssetsFolderNotFound(texture_pack, self.map)
 
