@@ -1,7 +1,8 @@
 """
 A script used by me to create texture pack json maps for the texture pack parser.
 """
-import os, sys
+import os
+import sys
 from pathlib import Path
 
 jsqp_dir = str(Path(os.path.split(__file__)[0]).parent)

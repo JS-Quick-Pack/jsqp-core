@@ -18,6 +18,7 @@ clear_temp()
 
 # Module imports
 # ---------------
+from .mc_versions import MCVersions
 from .packages.texture_pack import TexturePack
 
 
