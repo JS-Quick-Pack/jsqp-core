@@ -55,6 +55,11 @@ class TexturePack(FilePackage):
     def mc_meta(self) -> MCMeta:
         """Returns a dictatory of the pack's .mcmeta file."""
         return self.pack_parser.mc_meta
+    
+    @property
+    def description(self) -> str | None:
+        """Returns the pack's description from the .mcmeta file."""
+        return self.pack_parser.description
 
     def install(self, launcher: Launcher = None, overwrite: bool = False, performance_mode: bool = False, copy_it: bool = False):
         """

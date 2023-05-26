@@ -87,6 +87,11 @@ class TexturePackParser():
         return self.mc_meta["pack"]["pack_format"], pack_formats.pack_format_versions[self.mc_meta["pack"]["pack_format"]]
     
     @property
+    def description(self) -> str | None:
+        """Returns the pack's description from the .mcmeta file."""
+        return self.mc_meta["pack"].get("description", None)
+    
+    @property
     def version(self) -> MCVersions:
         """Returns the minecraft version this pack belongs to."""
         version, version_diff = self.detect_version(self.pack_format[1])
@@ -108,7 +113,7 @@ class TexturePackParser():
         version_diff: Dict[int, MCVersions] = {}
         self.logger.debug("Detecting minecraft version of this texture pack...")
 
-        if targeted_versions is None:
+        if targeted_versions is None or len(targeted_versions) == 0:
             targeted_versions = MCVersions
 
         for version in targeted_versions:

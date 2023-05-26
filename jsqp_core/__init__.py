@@ -19,7 +19,7 @@ clear_temp()
 # Module imports
 # ---------------
 from .mc_versions import MCVersions
-from .packages.texture_pack import TexturePack
+from .packages.texture_pack import TexturePack, TexturePackParser
 
 
 __version__: Final[str] = "1.0dev1"
