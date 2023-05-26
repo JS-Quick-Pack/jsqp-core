@@ -11,6 +11,11 @@ core_logger = add_custom_handler(
 )
 """The jsqp core logger."""
 
+# Clear the temporary directory.
+from .utils.temp import clear_temp
+clear_temp()
+
+
 # Module imports
 # ---------------
 from .packages.texture_pack import TexturePack

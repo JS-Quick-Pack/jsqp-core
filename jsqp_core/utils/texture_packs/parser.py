@@ -9,7 +9,7 @@ from devgoldyutils import LoggerAdapter, Colours, pprint
 from ... import core_logger
 from ...mc_versions import MCVersions
 from ...errors import JSQPCoreError
-from . import maps, zip_walker
+from . import maps
 
 if TYPE_CHECKING:
     from ...packages.texture_pack import TexturePack
@@ -47,7 +47,6 @@ class TexturePackParser():
     @property
     def actual_name(self) -> str | None:
         """Returns the actual name of the texture pack."""
-        # TODO: Fix this, it breaks with zips as root_path breaks.
         return os.path.split(self.root_path)[1]
 
     @property
@@ -58,7 +57,6 @@ class TexturePackParser():
 
     @property
     def assets_path(self) -> str:
-        # TODO: Fix this, it breaks with zips.
         return f"{self.texture_pack.path}/{os.path.split(self.__path_to_assets)[1]}"
     
     @property
@@ -71,7 +69,9 @@ class TexturePackParser():
         # TODO: the funny code.
         version_diff: Dict[int, MCVersions] = {}
         self.logger.debug("Detecting minecraft version of this texture pack...")
-        self.logger.warning("If the detected pack version is false PLEASE report an issue at https://github.com/JS-Quick-Pack/jsqp-core.")
+        self.logger.warning(
+            "If the detected pack version is false PLEASE report an issue at https://github.com/JS-Quick-Pack/jsqp-core/issues."
+        )
 
         for version in MCVersions:
             json_file = open(f"{os.path.split(maps.__file__)[0]}/{version.value}.json", mode="r")
@@ -92,11 +92,12 @@ class TexturePackParser():
     def __get_folder_structure(self) -> dict:
         """Returns the folder structure of this texture pack."""
         folder_structure = {}
+        main_folder_name = os.path.split(self.texture_pack.path)[1]
 
         # type 3 is a zip so we should use the zip walker I made instead.
-        for foldername, _, filenames in zip_walker.zip_walk(self.texture_pack.path) if self.texture_pack.type.value == 3 else os.walk(self.texture_pack.path):
+        for foldername, _, filenames in os.walk(self.texture_pack.path):
             current_folder = folder_structure
-            subfolder_list = foldername.split(os.path.sep)
+            subfolder_list = foldername.split(main_folder_name)[1].split(os.path.sep)
 
             for subfolder in subfolder_list[1:]:
                 if subfolder not in current_folder:

@@ -39,6 +39,11 @@ class Paths():
     def jsqp_core_appdata_dir(self) -> str:
         """Returns path to jsqp core appdata folder."""
         return f"{self.dev_goldy_dir}/JSQPCore"
+    
+    @property
+    def temp_dir(self) -> str:
+        """Returns path to jsqp core temp folder."""
+        return f"{self.jsqp_core_appdata_dir}/Temp"
 
     def repair_app_data_dir(self, more_paths_to_repair:List[str] = None):
         if more_paths_to_repair is None:

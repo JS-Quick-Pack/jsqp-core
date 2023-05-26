@@ -34,6 +34,15 @@ class FilePackage(Package):
 
         if not path.exists():
             raise errors.FilePackageDoesNotExist(path)
+        
+        # If package is a zip, extract it into a temp folder and open that as path.
+        if path.is_file() and path.suffix == ".zip":
+            self.logger.debug("Extracting zip to temp directory...")
+            temp_path = Paths().temp_dir + f"/{path.name[:-4]}"
+
+            ZipFile(path.absolute()).extractall(temp_path)
+
+            path = Path(temp_path)
 
         self.__path = path
 
@@ -53,9 +62,9 @@ class FilePackage(Package):
         return self.__path
     
     @path.setter
-    def path(self, value: str):
+    def path(self, value: Path | str):
         # We use setters here for the sole purpose of logging.
-        self.__path = Path(value)
+        self.__path = Path(value) if isinstance(value, str) else value
         self.logger.debug(f"Updated file package path object to '{str(value)}'!")
 
     @property

@@ -35,7 +35,7 @@ class TexturePack(FilePackage):
         # Name package to actual texture pack name.
         self.name = self.pack_parser.actual_name
 
-        self.logger.debug("Initialized!")
+        self.logger.debug("Texture Pack Initialized!")
 
     @property
     def install_location(self) -> str:
