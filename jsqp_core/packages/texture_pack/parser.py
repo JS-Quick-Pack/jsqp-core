@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 import json
 from deepdiff import DeepDiff
-from typing import TYPE_CHECKING, Dict, Tuple, final, TypedDict, Literal
+from typing import TYPE_CHECKING, Dict, Tuple, final, TypedDict, Literal, Iterable
 from devgoldyutils import LoggerAdapter, Colours, pprint
 
 from ... import core_logger
@@ -63,12 +63,16 @@ class TexturePackParser():
     @property
     def root_path(self) -> str:
         """Returns the real root path of this texture pack. E.g. where the ``assets``, ``pack.mcmeta`` and ``pack.png`` is stored."""
-        # TODO: Fix this, it breaks with zips.
-        return str(self.texture_pack.path) + (lambda x: "" if x == "/" else x)(os.path.split(self.__path_to_assets)[0])
+        start_path = str(self.texture_pack.path)
+
+        if "/" + os.path.split(start_path)[1] == os.path.split(self.__path_to_assets)[0]:
+            start_path = os.path.split(start_path)[0]
+
+        return start_path + (lambda x: "" if x == "/" else x)(os.path.split(self.__path_to_assets)[0])
 
     @property
     def assets_path(self) -> str:
-        return f"{self.texture_pack.path}/{os.path.split(self.__path_to_assets)[1]}"
+        return f"{self.root_path}/assets"
     
     @property
     def mc_meta(self) -> MCMeta:
@@ -85,17 +89,27 @@ class TexturePackParser():
     @property
     def version(self) -> MCVersions:
         """Returns the minecraft version this pack belongs to."""
-        return self.detect_version()
+        version, version_diff = self.detect_version(self.pack_format[1])
+        
+        if version_diff > 100: # If the version difference is too big target all versions.
+            self.logger.warning(
+                "We are detecting a large version difference, " \
+                "If the detected pack version is false PLEASE report an issue at https://github.com/JS-Quick-Pack/jsqp-core/issues."
+            )
+            version = self.detect_version(MCVersions)[0]
+
+        return version
     
-    def detect_version(self) -> MCVersions:
-        """Tries to detect the game version this pack was made for."""
+    def detect_version(self, targeted_versions: Iterable[MCVersions] = None) -> MCVersions | int:
+        """
+        This is an internal method, use `TexturePackParser.version` instead. 
+        This method tries to detect the game version this pack was made for. Returns version and the detected map difference of that version.
+        """
         version_diff: Dict[int, MCVersions] = {}
         self.logger.debug("Detecting minecraft version of this texture pack...")
-        self.logger.warning(
-            "If the detected pack version is false PLEASE report an issue at https://github.com/JS-Quick-Pack/jsqp-core/issues."
-        )
 
-        targeted_versions = self.pack_format[1]
+        if targeted_versions is None:
+            targeted_versions = MCVersions
 
         for version in targeted_versions:
             json_file = open(f"{os.path.split(maps.__file__)[0]}/{version.value}.json", mode="r")
@@ -105,13 +119,14 @@ class TexturePackParser():
 
             version_diff[len(difference.affected_paths)] = version
 
-        detected_version = version_diff[sorted(version_diff)[0]]
+        detected_version_diff = sorted(version_diff)[0]
+        detected_version = version_diff[detected_version_diff]
         self.logger.info(f"Detected Version -> {Colours.GREEN.apply(detected_version.name)}")
         self.logger.debug(
             f"Version difference = {Colours.PINK_GREY.apply(str([f'{version_diff[x].name} ({x})' for x in sorted(version_diff)]))}"
         )
 
-        return detected_version
+        return detected_version, detected_version_diff
 
     def __get_folder_structure(self) -> dict:
         """Returns the folder structure of this texture pack."""

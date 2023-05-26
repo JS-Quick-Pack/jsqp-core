@@ -158,7 +158,13 @@ class FilePackage(Package):
 
     def delete(self) -> bool:
         """Completely deletes the package with it's file."""
-        self.logger.info(f"Deleting '{self.name}' at '{self.path.absolute()}'...")
-        os.remove(self.path.absolute())
-        self.logger.debug(f"'{self.path.absolute()}' deleted!")
+        absolute_path = self.path.absolute()
+        self.logger.info(f"Deleting '{self.name}' at '{absolute_path}'...")
+
+        if self.path.is_dir():
+            shutil.rmtree(absolute_path, True)
+        else:
+            os.remove(absolute_path)
+
+        self.logger.debug(f"'{absolute_path}' deleted!")
         return True

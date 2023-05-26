@@ -2,16 +2,17 @@ from __future__ import annotations
 
 import time
 from devgoldyutils import LoggerAdapter
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Type
 from pathlib import Path
 
-from .. import core_logger, utils
-from ..mc_versions import MCVersions
-from .file_package import FilePackage
-from ..launchers.minecraft import Minecraft
+from ... import core_logger
+from ...mc_versions import MCVersions
+from ..file_package import FilePackage
+from ...launchers.minecraft import Minecraft
+from .parser import TexturePackParser, MCMeta
 
 if TYPE_CHECKING:
-    from ..launchers import Launcher
+    from ...launchers import Launcher
 
 # TODO: Do this next! 20/05/2023
 
@@ -27,7 +28,8 @@ class TexturePack(FilePackage):
         )
         self.__mc_ver = mc_version
 
-        self.pack_parser = utils.TexturePackParser(self)
+        self.pack_parser = TexturePackParser(self)
+        """The pack's parser class."""
 
         # Change path_to_file to actual texture pack root directory.
         self.path = Path(self.pack_parser.root_path)
@@ -48,6 +50,11 @@ class TexturePack(FilePackage):
             return self.__mc_ver.value if isinstance(self.__mc_ver, MCVersions) else self.__mc_ver
 
         return self.pack_parser.version
+    
+    @property
+    def mc_meta(self) -> MCMeta:
+        """Returns a dictatory of the pack's .mcmeta file."""
+        return self.pack_parser.mc_meta
 
     def install(self, launcher: Launcher = None, overwrite: bool = False, performance_mode: bool = False, copy_it: bool = False):
         """
