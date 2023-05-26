@@ -3,16 +3,27 @@ from __future__ import annotations
 import os
 import json
 from deepdiff import DeepDiff
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING, Dict, Tuple, final, TypedDict, Literal
 from devgoldyutils import LoggerAdapter, Colours, pprint
 
 from ... import core_logger
 from ...mc_versions import MCVersions
 from ...errors import JSQPCoreError
-from . import maps
+from . import maps, pack_formats
 
 if TYPE_CHECKING:
     from ...packages.texture_pack import TexturePack
+
+PACK_FORMAT_TYPES = Literal[1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+@final
+class PackMeta(TypedDict):
+    pack_format: PACK_FORMAT_TYPES
+    description: str
+
+@final
+class MCMeta(TypedDict):
+    pack: PackMeta
 
 class AssetsFolderNotFound(JSQPCoreError):
     def __init__(self, texture_pack: TexturePack, map: dict):
@@ -60,6 +71,18 @@ class TexturePackParser():
         return f"{self.texture_pack.path}/{os.path.split(self.__path_to_assets)[1]}"
     
     @property
+    def mc_meta(self) -> MCMeta:
+        file = open(self.root_path + "/pack.mcmeta", mode="r")
+        json_dict = json.load(file)
+        file.close()
+        return json_dict
+
+    @property
+    def pack_format(self) -> Tuple[PACK_FORMAT_TYPES, Tuple[MCVersions]]:
+        """Returns the pack format of this pack and the versions that pack format corresponds to."""
+        return self.mc_meta["pack"]["pack_format"], pack_formats.pack_format_versions[self.mc_meta["pack"]["pack_format"]]
+    
+    @property
     def version(self) -> MCVersions:
         """Returns the minecraft version this pack belongs to."""
         return self.detect_version()
@@ -73,7 +96,9 @@ class TexturePackParser():
             "If the detected pack version is false PLEASE report an issue at https://github.com/JS-Quick-Pack/jsqp-core/issues."
         )
 
-        for version in MCVersions:
+        targeted_versions = self.pack_format[1]
+
+        for version in targeted_versions:
             json_file = open(f"{os.path.split(maps.__file__)[0]}/{version.value}.json", mode="r")
             json_file = json.load(json_file)
 

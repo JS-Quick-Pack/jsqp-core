@@ -15,8 +15,14 @@ from jsqp_core import TexturePack, core_logger
 
 try:
     pack = TexturePack(sys.argv[1])
+    json_name = pack.name
 
-    json.dump(pack.pack_parser.map, open(f"{pack.name}.json", mode="w"))
+    try:
+        json_name = sys.argv[2]
+    except IndexError:
+        pass
+
+    json.dump(pack.pack_parser.map, open(f"{json_name}.json", mode="w"))
 
 except IndexError as e:
     core_logger.error(
