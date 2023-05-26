@@ -89,7 +89,6 @@ class TexturePackParser():
     
     def detect_version(self) -> MCVersions:
         """Tries to detect the game version this pack was made for."""
-        # TODO: the funny code.
         version_diff: Dict[int, MCVersions] = {}
         self.logger.debug("Detecting minecraft version of this texture pack...")
         self.logger.warning(
