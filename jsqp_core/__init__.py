@@ -15,6 +15,9 @@ core_logger = add_custom_handler(
 from .utils.temp import clear_temp
 clear_temp()
 
+from .configuration import Config
+config = Config()
+
 
 # Module imports
 # ---------------
