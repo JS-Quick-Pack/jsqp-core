@@ -2,10 +2,9 @@
 
 The official microsoft minecraft launcher from https://www.minecraft.net/en-us/download
 
-- **ID: ``minecraft``**
-- **DISPLAY NAME: ``Minecraft Launcher``**
-- **DEVELOPER: ``Microsoft``**
-
+| Id | Display Name | Developer |
+| --- | --- | --- |
+| **``minecraft``** | **``Minecraft Launcher``** | **``Microsoft``** |
 
 ## Platform & Installation Support
 **If you have an os that is not listed here please test it and let us know via a git issue.**
