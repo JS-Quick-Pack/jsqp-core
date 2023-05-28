@@ -11,7 +11,8 @@ import os
 import sys
 from typing import Tuple
 
-from jsqp_core.packages import Package
+from .. import errors
+from ..packages import Package
 from ..paths import Paths
 from . import Launcher, LauncherInfo, LauncherNotFound
 
@@ -27,10 +28,7 @@ class Minecraft(Launcher):
                 homepage_link = "https://www.minecraft.net/en-us/download",
                 developer = "Microsoft"
             )
-        )        
-
-        self.game_directory = None
-        """The directory where the actual game files are. (e.g. logs, resourcepacks, saves)"""
+        )
 
         # Find the goddam minecraft launcher.
         # -------------------------------------
@@ -42,10 +40,19 @@ class Minecraft(Launcher):
         self.dot_minecraft_dir = dot_minecraft_dir[0]
         """The directory where the launcher files are. (e.g profiles, etc)"""
 
-    def install(self, package: Package, overwrite_if_exist: bool = False, performance_mode: bool = False) -> bool:
-        ...
+    def install(self, package: Package, overwrite: bool = False) -> None:
+        """Install the texture pack into """
+        from ..packages.texture_pack import TexturePack
 
-    def uninstall(self, package: Package, overwrite_if_exist: bool = False, performance_mode: bool = False) -> bool:
+        if isinstance(package, TexturePack):
+            package.add()
+
+            return
+
+
+        raise errors.PackageNotSupported(package, self)
+
+    def uninstall(self, package: Package, performance_mode: bool = False) -> bool:
         ...
 
     def find_launcher(self) -> Tuple[str, str]:

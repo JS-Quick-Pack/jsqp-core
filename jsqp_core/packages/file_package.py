@@ -10,7 +10,7 @@ from abc import abstractmethod
 from devgoldyutils import LoggerAdapter
 
 from . import Package
-from .. import core_logger, errors
+from .. import core_logger, errors, config
 from ..paths import Paths
 
 
@@ -91,8 +91,27 @@ class FilePackage(Package):
             return FileTypes.FOLDER
         elif self.path.is_symlink():
             return FileTypes.SYMBOLIC_LINK
+        
+    def add(self):
+        """Adds the package to the jsqp repository."""
+        self.logger.info(f"Adding '{self.name}' to jsqp repository...")
+        # Zip it if it's not already a zip.
+        if self.type == FileTypes.FOLDER:
+            self.zip(self.name + ".zip", config.performance_mode)
+
+        # Move the package to JSQPCore install location directory.
+        try:
+            self.move(self.install_location, True, config.no_copy)
+        except FileNotFoundError:
+            # Repair and try again if file is not found.
+            # -------------------------------------------
+            Paths().repair_app_data_dir([
+                self.install_location
+            ])
+
+            self.move(self.install_location, True, config.no_copy)
     
-    def move(self, path: str, overwrite_if_exist: bool = False, copy_it: bool = False) -> bool:
+    def move(self, path: str, overwrite_if_exist: bool = False, copy_it: bool = False) -> None:
         """Allows you to move this file package to another location. Raises ``FileNotFoundError`` if path or file does not exist."""
         new_path = f"{path}/{self.path.name}"
 
@@ -116,7 +135,6 @@ class FilePackage(Package):
         self.path = Path(new_path)
 
         self.logger.info(f"Moved to '{new_path}'!")
-        return True
 
     def zip(self, zip_name: str = None, performance_mode: bool = False) -> bool:
         """Turn file package into a zip if it is a folder."""

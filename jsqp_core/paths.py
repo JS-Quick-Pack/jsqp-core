@@ -5,8 +5,7 @@ import sys
 from typing import List
 from devgoldyutils import LoggerAdapter
 
-from .. import core_logger
-from ..errors import OSNotSupported
+from . import core_logger, errors
 
 class Paths():
     """Class containing methods for finding required paths."""
@@ -23,12 +22,13 @@ class Paths():
 
     @property
     def appdata_dir(self):
+        """On Linux this returns the HOME directory."""
         if self.__platform == "win32":
-            return os.getenv('APPDATA')
+            return os.getenv("APPDATA")
         elif self.__platform == "linux":
             return os.getenv("HOME")
         else:
-            raise OSNotSupported()
+            raise errors.OSNotSupported()
     
     @property
     def dev_goldy_dir(self) -> str:
@@ -43,7 +43,7 @@ class Paths():
     @property
     def temp_dir(self) -> str:
         """Returns path to jsqp core temp folder."""
-        return f"{self.jsqp_core_appdata_dir}/Temp"
+        return f"{self.jsqp_core_appdata_dir}/.temp"
 
     def repair_app_data_dir(self, more_paths_to_repair:List[str] = None):
         if more_paths_to_repair is None:

@@ -40,11 +40,11 @@ class Launcher(ABC):
         return f"({self.info.developer}) {self.info.display_name}"
 
     @abstractmethod
-    def install(self, package: Package, overwrite_if_exist: bool = False, performance_mode: bool = False) -> bool:
+    def install(self, package: Package, overwrite: bool = False) -> bool:
         """Method to install a package."""
         ...
 
     @abstractmethod
-    def uninstall(self, package: Package, overwrite_if_exist: bool = False, performance_mode: bool = False) -> bool:
+    def uninstall(self, package: Package) -> bool:
         """Method to uninstall a package."""
         ...

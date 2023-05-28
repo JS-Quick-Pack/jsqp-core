@@ -15,6 +15,7 @@ class Config():
     def performance_mode(self, x: bool):
         os.environ["jsqp_performance"] = str(x).lower()
 
+
     @property
     def debug_mode(self) -> bool:
         """When enabled more things are logged to console."""
@@ -23,3 +24,13 @@ class Config():
     @performance_mode.setter
     def debug_mode(self, x: bool):
         os.environ["jsqp_debug"] = str(x).lower()
+
+
+    @property
+    def no_copy(self) -> bool:
+        """When enabled files will be deleted instead of copied appropriately when moving."""
+        return config("jsqp_no_copy", default = False)
+
+    @no_copy.setter
+    def debug_mode(self, x: bool):
+        os.environ["jsqp_no_copy"] = str(x).lower()

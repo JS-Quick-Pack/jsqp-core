@@ -5,9 +5,12 @@ import logging
 from typing import Final
 from devgoldyutils import add_custom_handler, Colours
 
+from .configuration import Config
+config = Config()
+
 core_logger = add_custom_handler(
     logger = logging.getLogger(f"{Colours.PINK_GREY}JSQP{Colours.RED}_{Colours.CLAY}CORE{Colours.RESET}"),
-    level = logging.INFO
+    level = logging.DEBUG if config.debug_mode else logging.INFO
 )
 """The jsqp core logger."""
 
