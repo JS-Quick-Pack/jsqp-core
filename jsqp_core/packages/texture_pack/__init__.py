@@ -5,7 +5,7 @@ from devgoldyutils import LoggerAdapter
 from typing import TYPE_CHECKING, Type
 from pathlib import Path
 
-from ... import core_logger
+from ... import core_logger, config
 from ...mc_versions import MCVersions
 from ..file_package import FilePackage
 from ...launchers.minecraft import Minecraft
@@ -40,8 +40,12 @@ class TexturePack(FilePackage):
         self.logger.debug("Texture Pack Initialized!")
 
     @property
+    def display_name(self) -> str:
+        return "".join([x[1:] if not x[0] == self.name[0] else x for x in self.name.replace("  ", "").split("§")])
+
+    @property
     def install_location(self) -> str:
-        return super().install_location + "/resource_packs"
+        return super().install_location + "/texture_packs"
 
     @property
     def mc_version(self) -> int:
@@ -61,7 +65,7 @@ class TexturePack(FilePackage):
         """Returns the pack's description from the .mcmeta file."""
         return self.pack_parser.description
 
-    def install(self, launcher: Launcher = None, overwrite: bool = False, performance_mode: bool = False, copy_it: bool = False):
+    def install(self, launcher: Launcher = None, overwrite: bool = False, copy_it: bool = False):
         """
         Method that allows you to install this pack into your minecraft game.
 
@@ -70,17 +74,17 @@ class TexturePack(FilePackage):
         if launcher is None: # Default launcher is the official minecraft launcher.
             launcher = Minecraft()
             self.logger.info(f"Launcher was not specified so I'm defaulting to '{launcher.display_name}'.")
-            if not performance_mode: time.sleep(1.5)
+            if not config.performance_mode: time.sleep(1.5)
 
-        if (core_logger.level == 10) and (performance_mode is False):
+        if config.debug_mode and config.performance_mode is False:
             self.logger.warn(
                 "\u001b[33;20mTexture packs will take longer to install because logging level is set to DEBUG! Please set logging level to info unless you know what you are doing.\u001b[0m"
             )
-            if not performance_mode: time.sleep(2)
+            time.sleep(2)
 
         start_time = time.perf_counter()
 
-        launcher.install(self, overwrite_if_exist=overwrite, performance_mode=performance_mode)
+        launcher.install(self, overwrite)
 
         end_time = time.perf_counter()
 

@@ -6,7 +6,7 @@
   
 </div>
 
-#### ⚠ Warning: ``JSQPCore`` is in very deep development so some utils and code will be incomplete. Give it a few months to develop and mature.
+#### ⚠ Warning: ``JSQPCore`` is in very deep development so some utils and code will be incomplete. Give it time to develop and mature.
 
 ##### 🟣 ``JS:QP Core`` is an open source minecraft package manager written in python and heavly used under **[JS:QP](https://github.com/JS-Quick-Pack/jsqp-app)**.
 

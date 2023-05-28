@@ -1,8 +1,10 @@
-from ... import TexturePackParser, TexturePack, MCVersions
+from ... import TexturePackParser, TexturePack, MCVersions, core_logger, logging
+
+core_logger.setLevel(logging.DEBUG)
 
 texture_pack_1 = TexturePack("./packages/texture_pack/.parser_files/test_texture_pack_1.zip")
 texture_pack_2 = TexturePack("./packages/texture_pack/.parser_files/damn.zip")
-texture_pack_3 = TexturePack("./packages/texture_pack/.parser_files/goldy_pack")
+texture_pack_3 = TexturePack("./packages/texture_pack/.parser_files/mc_1.10_pack")
 
 def test_actual_name():
     assert TexturePackParser(texture_pack_1).actual_name == "test_texture_pack_1"

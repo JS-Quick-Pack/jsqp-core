@@ -10,7 +10,7 @@ from abc import abstractmethod
 from devgoldyutils import LoggerAdapter
 
 from . import Package
-from .. import core_logger, errors
+from .. import core_logger, errors, config
 from ..paths import Paths
 
 
@@ -49,6 +49,12 @@ class FilePackage(Package):
         super().__init__(
             path.name if path.is_file() else os.path.split(path.absolute())[1]
         )
+
+    @property
+    @abstractmethod
+    def display_name(self) -> str:
+        """Returns the display name of this package."""
+        ...
 
     @property
     @abstractmethod
@@ -91,32 +97,71 @@ class FilePackage(Package):
             return FileTypes.FOLDER
         elif self.path.is_symlink():
             return FileTypes.SYMBOLIC_LINK
-    
-    def move(self, path: str, overwrite_if_exist: bool = False, copy_it: bool = False) -> bool:
+
+    def add(self, overwrite: bool = False):
+        """Adds the package to the jsqp repository."""
+        self.logger.info(f"Adding '{self.display_name}' to jsqp repository...")
+        # Zip it if it's not already a zip.
+        if self.type == FileTypes.FOLDER:
+            self.zip(self.name + ".zip", config.performance_mode)
+
+        # Move the package to JSQPCore install location directory.
+        try:
+            self.move(self.install_location, overwrite, config.no_copy)
+        except FileNotFoundError:
+            # Repair and try again if file is not found.
+            # -------------------------------------------
+            Paths().repair_app_data_dir([
+                self.install_location
+            ])
+
+            self.move(self.install_location, overwrite, config.no_copy)
+        except FileExistsError:
+            raise errors.PackageAlreadyExist(self)
+
+    def link_to(self, location: str, file_name: str = None, overwrite: bool = False) -> None:
+        """Method that creates a symbolic link of the package in that location."""
+        self.logger.debug("Creating symbolic link...")
+
+        if file_name is None:
+            file_name = self.display_name + self.path.suffix
+
+        target_location = location + f"/{file_name}"
+
+        if os.path.exists(target_location) and overwrite:
+            os.remove(target_location)
+
+        try:
+            os.link(self.path.absolute(), target_location)
+            self.logger.debug(f"Created symbolic link '{self.name}' at '{location}'.")
+        except FileExistsError:
+            self.logger.warning("Didn't create symbolic link as it already exists.")
+
+    def move(self, path: str, overwrite: bool = False, no_copy: bool = True) -> None:
         """Allows you to move this file package to another location. Raises ``FileNotFoundError`` if path or file does not exist."""
         new_path = f"{path}/{self.path.name}"
+        self.logger.info(f"Moving '{self.display_name}' to '{os.path.split(new_path)[0]:.60}'...")
+
+        if overwrite:
+            self.logger.info("Overwriting as it already exists...")
+            if os.path.isdir(new_path):
+                shutil.rmtree(new_path, True)
+            else:
+                os.remove(new_path)
 
         if os.path.exists(new_path):
-            if overwrite_if_exist:
-                FilePackage(new_path).delete()
-            else:
-                if copy_it is False: # Don't delete if I am asked to only copy the file while moving.
-                    self.delete()
+            raise FileExistsError("The file already exists.")
 
-                raise errors.PackageAlreadyExist(self, new_path)
-
-        self.logger.info(f"Moving '{self.path.name}' to '{new_path}'...")
         shutil.copy2(self.path.absolute(), new_path)
 
         # Delete if the user only doesn't want to copy the file.
-        if copy_it is False:
+        if no_copy is False:
             self.delete()
 
         # Update path
         self.path = Path(new_path)
 
-        self.logger.info(f"Moved to '{new_path}'!")
-        return True
+        self.logger.info(f"Moved to '{new_path:.60}'!")
 
     def zip(self, zip_name: str = None, performance_mode: bool = False) -> bool:
         """Turn file package into a zip if it is a folder."""
@@ -127,7 +172,7 @@ class FilePackage(Package):
             zip_name = (lambda x: x if x[-4:] == ".zip" else x + ".zip")(zip_name)
             path_to_zip = Path(str(self.path.parent) + f"/{zip_name}")
 
-            self.logger.info(f"Zipping {self.path} to '{path_to_zip}'...")
+            self.logger.info(f"Zipping {self.display_name} to '{str(path_to_zip):.60}...'")
             
             # Zipping each file in directory.
             # --------------------------------
@@ -142,7 +187,7 @@ class FilePackage(Package):
                     for file_path in self.path.rglob("*"):
                         archive.write(file_path, arcname = file_path.__str__().partition(self.path.name + os.path.sep)[2])
 
-            self.logger.info(f"Done zipping to '{path_to_zip.absolute()}'!")
+            self.logger.debug(f"Done zipping to '{path_to_zip.absolute()}'!")
             
             # Updating path object.
             self.path = path_to_zip
@@ -159,7 +204,7 @@ class FilePackage(Package):
     def delete(self) -> bool:
         """Completely deletes the package with it's file."""
         absolute_path = self.path.absolute()
-        self.logger.info(f"Deleting '{self.name}' at '{absolute_path}'...")
+        self.logger.info(f"Deleting '{self.display_name}' at '{os.path.split(absolute_path)[0]:.60}...'")
 
         if self.path.is_dir():
             shutil.rmtree(absolute_path, True)
