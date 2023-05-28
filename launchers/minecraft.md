@@ -1,6 +1,6 @@
 # Official Minecraft Launcher
 
-The official microsoft minecraft launcher located at https://www.minecraft.net/en-us/download
+The official microsoft minecraft launcher from https://www.minecraft.net/en-us/download
 
 - **ID: ``minecraft``**
 - **DISPLAY NAME: ``Minecraft Launcher``**
