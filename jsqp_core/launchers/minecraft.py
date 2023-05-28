@@ -9,14 +9,33 @@ WIKI: https://minecraft.fandom.com/wiki/Minecraft_Launcher
 
 import os
 import sys
-from typing import Tuple
+import json
+from typing import Tuple, final, TypedDict, Dict
+from devgoldyutils import Colours
 
 from .. import errors
-from ..packages import Package
 from ..paths import Paths
+from ..packages import Package
 from . import Launcher, LauncherInfo, LauncherNotFound
 
 paths = Paths()
+
+@final
+class LauncherProfile(TypedDict):
+    """Minecraft launcher profile dictatory."""
+    created: str
+    gameDir: str
+    icon: str
+    lastUsed: str
+    lastVersionId: str
+    name: str
+    type: str
+
+@final
+class LauncherProfilesDict(TypedDict):
+    profiles: Dict[str, LauncherProfile]
+    settings: dict
+    version: int
 
 class Minecraft(Launcher):
     """The official microsoft minecraft launcher."""
@@ -35,20 +54,47 @@ class Minecraft(Launcher):
         if dot_minecraft_dir is None:
             dot_minecraft_dir = self.find_launcher()
 
-        self.info.display_name += f" [{dot_minecraft_dir[1]}]" # Append to display name.
+        self.info.display_name += f" [{dot_minecraft_dir[1]}]" # Append type to display name.
 
         self.dot_minecraft_dir = dot_minecraft_dir[0]
         """The directory where the launcher files are. (e.g profiles, etc)"""
+
+    @property
+    def launcher_profiles(self) -> LauncherProfilesDict:
+        """Returns the dictionary from the launcher_profiles.json file."""
+        file = open(self.dot_minecraft_dir + "/launcher_profiles.json", mode="r")
+        json_dict = json.load(file)
+        file.close()
+        return json_dict
 
     def install(self, package: Package, overwrite: bool = False) -> None:
         """Install the texture pack into """
         from ..packages.texture_pack import TexturePack
 
         if isinstance(package, TexturePack):
-            package.add()
+            package.add(overwrite) # TODO: idk about doing this here, we will definitely have to keep track of the repo with some type of database or json files.
+
+            # TODO: We need a separate function that adds the texture pack to the game profiles.
+            # Link the texture pack to each minecraft launcher profile.
+            for profile in self.launcher_profiles["profiles"]:
+                profile = self.launcher_profiles["profiles"][profile]
+
+                if not profile["lastUsed"] == "1970-01-01T00:00:00.000Z": # Don't include profiles that have never been ran.
+
+                    name = profile.get("name") if not profile.get("name") == "" else profile.get("type").replace("-", " ").title()
+                    game_dir = profile.get("gameDir", self.dot_minecraft_dir)
+
+                    try:
+                        package.link_to(os.path.join(game_dir, "resourcepacks"), overwrite=overwrite)
+                        self.logger.info(f"Linked '{Colours.BLUE.apply(package.display_name)}' to game profile '{Colours.GREEN.apply(name)}' ✅")
+
+                    except FileNotFoundError:
+                        self.logger.error(
+                            f"I can't find the resource packs folder for the profile '{name}', " \
+                            "make sure you have set the correct game directory in profile settings."
+                        )
 
             return
-
 
         raise errors.PackageNotSupported(package, self)
 

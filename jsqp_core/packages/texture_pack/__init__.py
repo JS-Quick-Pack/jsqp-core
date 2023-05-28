@@ -40,6 +40,10 @@ class TexturePack(FilePackage):
         self.logger.debug("Texture Pack Initialized!")
 
     @property
+    def display_name(self) -> str:
+        return "".join([x[1:] if not x[0] == self.name[0] else x for x in self.name.replace("  ", "").split("§")])
+
+    @property
     def install_location(self) -> str:
         return super().install_location + "/texture_packs"
 

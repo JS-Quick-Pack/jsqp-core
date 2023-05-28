@@ -3,6 +3,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from devgoldyutils import LoggerAdapter
+from .. import core_logger
 
 if TYPE_CHECKING:
     from ..packages import Package
@@ -31,6 +33,7 @@ class Launcher(ABC):
     """Base class for all launchers. More like an interface actually."""
     def __init__(self, info: LauncherInfo) -> None:
         self.info = info
+        self.logger = LoggerAdapter(core_logger, prefix=info.display_name)
 
         super().__init__()
 
