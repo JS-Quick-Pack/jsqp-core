@@ -23,8 +23,8 @@ class LauncherInfo:
 class LauncherNotFound(JSQPCoreError):
     def __init__(self, launcher: Launcher):
         super().__init__(
-            f"Could not find the launcher '{launcher.display_name}'. " /
-            f"Check if we support your installation over here: {launcher.info.id}"
+            f"Could not find the launcher '{launcher.display_name}'." \
+            f"\nCheck if we support your installation over here: https://github.com/JS-Quick-Pack/jsqp-core/blob/feat/main/launchers/{launcher.info.id}.md"
         )
 
 class Launcher(ABC):

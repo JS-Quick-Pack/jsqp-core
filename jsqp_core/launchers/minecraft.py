@@ -19,26 +19,28 @@ paths = Paths()
 
 class Minecraft(Launcher):
     """The official microsoft minecraft launcher."""
-    def __init__(self, launcher_directory: Tuple[str, str] = None) -> None:
-        self.game_directory = None
-        """The directory where the actual game files are. (e.g. logs, resourcepacks, saves)"""
-        
-        # Find the goddam minecraft launcher.
-        # -------------------------------------
-        if launcher_directory is None:
-            launcher_directory = self.find_launcher()
-
-        self.launcher_directory = launcher_directory
-        """The directory where the launcher files are. (e.g profiles, etc)"""
-
+    def __init__(self, dot_minecraft_dir: Tuple[str, str] = None) -> None:
         super().__init__(
             LauncherInfo(
                 id = "minecraft",
-                display_name = f"Minecraft Launcher [{launcher_directory[1]}]",
+                display_name = "Minecraft Launcher",
                 homepage_link = "https://www.minecraft.net/en-us/download",
                 developer = "Microsoft"
             )
-        )
+        )        
+
+        self.game_directory = None
+        """The directory where the actual game files are. (e.g. logs, resourcepacks, saves)"""
+
+        # Find the goddam minecraft launcher.
+        # -------------------------------------
+        if dot_minecraft_dir is None:
+            dot_minecraft_dir = self.find_launcher()
+
+        self.info.display_name += f" [{dot_minecraft_dir[1]}]" # Append to display name.
+
+        self.dot_minecraft_dir = dot_minecraft_dir[0]
+        """The directory where the launcher files are. (e.g profiles, etc)"""
 
     def install(self, package: Package, overwrite_if_exist: bool = False, performance_mode: bool = False) -> bool:
         ...
@@ -60,4 +62,4 @@ class Minecraft(Launcher):
             elif os.path.exists(flatpak_install):
                 return flatpak_install, "flatpak"
 
-        raise LauncherNotFound("Check out", self)
+        raise LauncherNotFound(self)
