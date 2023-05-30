@@ -4,7 +4,7 @@ import os
 import json
 from deepdiff import DeepDiff
 from typing import TYPE_CHECKING, Dict, Tuple, final, TypedDict, Literal, Iterable, List
-from devgoldyutils import LoggerAdapter, Colours, pprint
+from devgoldyutils import LoggerAdapter, Colours, pprint, short_str
 
 from ... import core_logger
 from ...mc_versions import MCVersions
@@ -40,7 +40,7 @@ class TexturePackParser():
     def __init__(self, texture_pack: TexturePack) -> None:
         self.texture_pack = texture_pack
 
-        self.logger = LoggerAdapter(core_logger, "TexturePackParser")
+        self.logger = LoggerAdapter(LoggerAdapter(core_logger, "TexturePackParser"), prefix = Colours.PINK_GREY.apply(short_str(texture_pack.name)))
 
         self.__path_to_assets = ""
         """The path to the assets folder, this is automatically assigned by ``.__find_assets_folder()``."""
@@ -99,6 +99,7 @@ class TexturePackParser():
                 "We are detecting a large version difference, " \
                 "If the detected pack version is false PLEASE report an issue at https://github.com/JS-Quick-Pack/jsqp-core/issues."
             )
+            self.logger.debug("Trying again but with all minecraft versions instead...")
             version = self.detect_version(MCVersions)[0]
 
         return version
