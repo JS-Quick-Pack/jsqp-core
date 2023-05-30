@@ -6,17 +6,21 @@ ONLY java edition is currently supported.
 
 WIKI: https://minecraft.fandom.com/wiki/Minecraft_Launcher
 """
+from __future__ import annotations
 
 import os
 import sys
 import json
-from typing import Tuple, final, TypedDict, Dict
+from typing import Tuple, final, TypedDict, Dict, TYPE_CHECKING, List
 from devgoldyutils import Colours
 
 from .. import errors
 from ..paths import Paths
 from ..packages import Package
 from . import Launcher, LauncherInfo, LauncherNotFound
+
+if TYPE_CHECKING:
+    from ..packages.file_package import FilePackage
 
 paths = Paths()
 
@@ -67,40 +71,6 @@ class Minecraft(Launcher):
         file.close()
         return json_dict
 
-    def install(self, package: Package, overwrite: bool = False) -> None:
-        """Install the texture pack into """
-        from ..packages.texture_pack import TexturePack
-
-        if isinstance(package, TexturePack):
-            package.add(overwrite) # TODO: idk about doing this here, we will definitely have to keep track of the repo with some type of database or json files.
-
-            # TODO: We need a separate function that adds the texture pack to the game profiles.
-            # Link the texture pack to each minecraft launcher profile.
-            for profile in self.launcher_profiles["profiles"]:
-                profile = self.launcher_profiles["profiles"][profile]
-
-                if not profile["lastUsed"] == "1970-01-01T00:00:00.000Z": # Don't include profiles that have never been ran.
-
-                    name = profile.get("name") if not profile.get("name") == "" else profile.get("type").replace("-", " ").title()
-                    game_dir = profile.get("gameDir", self.dot_minecraft_dir)
-
-                    try:
-                        package.link_to(os.path.join(game_dir, "resourcepacks"), overwrite=overwrite)
-                        self.logger.info(f"Linked '{Colours.BLUE.apply(package.display_name)}' to game profile '{Colours.GREEN.apply(name)}' ✅")
-
-                    except FileNotFoundError:
-                        self.logger.error(
-                            f"I can't find the resource packs folder for the profile '{name}', " \
-                            "make sure you have set the correct game directory in profile settings."
-                        )
-
-            return
-
-        raise errors.PackageNotSupported(package, self)
-
-    def uninstall(self, package: Package, performance_mode: bool = False) -> bool:
-        ...
-
     def find_launcher(self) -> Tuple[str, str]:
         """Method that tries to find the minecraft launcher on your os and returns the path and type of installation."""
         if sys.platform == "win32": # For the windows normies. You know literally 90% of players.
@@ -116,3 +86,52 @@ class Minecraft(Launcher):
                 return flatpak_install, "flatpak"
 
         raise LauncherNotFound(self)
+    
+    def add_to_profiles(self, package: FilePackage, folder_name: str, profiles: List[LauncherProfile] = None, overwrite: bool = False) -> List[LauncherProfile]:
+        """
+        Method that adds a file package to the game profiles in the Minecraft Launcher.
+        Returns the profiles that the package was added to.
+        """
+        if profiles is None:
+            profiles = [self.launcher_profiles["profiles"][profile] for profile in self.launcher_profiles["profiles"]]
+
+        for profile in profiles:
+            name = profile.get("name") if not profile.get("name") == "" else profile.get("type").replace("-", " ").title()
+
+            if profile["lastUsed"] == "1970-01-01T00:00:00.000Z": # Don't include profiles that have never been ran.
+                self.logger.warning(f"Skipped '{name}' because that profile was never used/launched.")
+                continue
+
+            game_dir = profile.get("gameDir", self.dot_minecraft_dir)
+
+            try:
+                package.link_to(os.path.join(game_dir, folder_name), overwrite = overwrite)
+                self.logger.info(f"Linked '{Colours.BLUE.apply(package.display_name)}' to game profile '{Colours.GREEN.apply(name)}' ✅")
+
+            except FileNotFoundError:
+                self.logger.error(
+                    f"I can't find the '{folder_name}' folder for the profile '{name}', " \
+                    "make sure you have set the correct game directory in profile settings."
+                )
+
+
+    def install(self, package: FilePackage, overwrite: bool = False) -> None:
+        """Install the texture pack into """
+        from ..packages.texture_pack import TexturePack
+
+        if isinstance(package, TexturePack):
+            package.add(overwrite) # TODO: idk about doing this here, also we will definitely have to keep track of the repo with some type of database or json files.
+
+            # Link the texture pack to each minecraft launcher profile.
+            self.add_to_profiles(
+                package, 
+                folder_name = "resourcepacks",
+                overwrite = overwrite
+            )
+
+            return None
+
+        raise errors.PackageNotSupported(package, self)
+
+    def uninstall(self, package: Package, performance_mode: bool = False) -> bool:
+        ...

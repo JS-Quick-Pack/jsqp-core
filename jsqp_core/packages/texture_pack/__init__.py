@@ -14,8 +14,6 @@ from .parser import TexturePackParser, MCMeta
 if TYPE_CHECKING:
     from ...launchers import Launcher
 
-# TODO: Do this next! 20/05/2023
-
 class TexturePack(FilePackage):
     """
     Class that allows you to represent a file as a texture pack and install it to your minecraft game.
@@ -28,14 +26,14 @@ class TexturePack(FilePackage):
         )
         self.__mc_ver = mc_version
 
-        self.pack_parser = TexturePackParser(self)
+        self.parser = TexturePackParser(self)
         """The pack's parser class."""
 
         # Change path_to_file to actual texture pack root directory.
-        self.path = Path(self.pack_parser.root_path)
+        self.path = Path(self.parser.root_path)
 
         # Name package to actual texture pack name.
-        self.name = self.pack_parser.actual_name
+        self.name = self.parser.actual_name
 
         self.logger.debug("Texture Pack Initialized!")
 
@@ -53,17 +51,17 @@ class TexturePack(FilePackage):
         if self.__mc_ver is not None:
             return self.__mc_ver.value if isinstance(self.__mc_ver, MCVersions) else self.__mc_ver
 
-        return self.pack_parser.version
+        return self.parser.version
     
     @property
     def mc_meta(self) -> MCMeta:
         """Returns a dictatory of the pack's .mcmeta file."""
-        return self.pack_parser.mc_meta
+        return self.parser.mc_meta
     
     @property
     def description(self) -> str | None:
         """Returns the pack's description from the .mcmeta file."""
-        return self.pack_parser.description
+        return self.parser.description
 
     def install(self, launcher: Launcher = None, overwrite: bool = False, copy_it: bool = False):
         """

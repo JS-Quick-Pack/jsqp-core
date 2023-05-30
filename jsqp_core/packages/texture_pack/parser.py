@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 import json
 from deepdiff import DeepDiff
-from typing import TYPE_CHECKING, Dict, Tuple, final, TypedDict, Literal, Iterable
+from typing import TYPE_CHECKING, Dict, Tuple, final, TypedDict, Literal, Iterable, List
 from devgoldyutils import LoggerAdapter, Colours, pprint
 
 from ... import core_logger
@@ -45,6 +45,9 @@ class TexturePackParser():
         self.__path_to_assets = ""
         """The path to the assets folder, this is automatically assigned by ``.__find_assets_folder()``."""
 
+        self.original_pack_path = texture_pack.path
+        """A copy of the path object for the texture pack when this parser was initialized."""
+        
         self.map = self.__get_folder_structure()
         """Folder structure of this texture pack."""
 
@@ -54,25 +57,20 @@ class TexturePackParser():
             raise AssetsFolderNotFound(texture_pack, self.map)
 
         self.logger.info(f"Parsed the texture pack '{self.actual_name}'!")
-    
+
     @property
-    def actual_name(self) -> str | None:
+    def actual_name(self) -> str:
         """Returns the actual name of the texture pack."""
-        return os.path.split(self.root_path)[1]
+        return os.path.basename(os.path.normpath(self.root_path))
 
     @property
     def root_path(self) -> str:
         """Returns the real root path of this texture pack. E.g. where the ``assets``, ``pack.mcmeta`` and ``pack.png`` is stored."""
-        start_path = str(self.texture_pack.path)
-
-        if "/" + os.path.split(start_path)[1] == os.path.split(self.__path_to_assets)[0]:
-            start_path = os.path.split(start_path)[0]
-
-        return start_path + (lambda x: "" if x == "/" else x)(os.path.split(self.__path_to_assets)[0])
+        return os.path.join(str(self.original_pack_path.absolute()), *os.path.split(self.__path_to_assets)[0].split(os.path.sep))
 
     @property
     def assets_path(self) -> str:
-        return f"{self.root_path}/assets"
+        return os.path.join(self.root_path, "assets")
     
     @property
     def mc_meta(self) -> MCMeta:
@@ -85,7 +83,7 @@ class TexturePackParser():
     def pack_format(self) -> Tuple[PACK_FORMAT_TYPES, Tuple[MCVersions]]:
         """Returns the pack format of this pack and the versions that pack format corresponds to."""
         return self.mc_meta["pack"]["pack_format"], pack_formats.pack_format_versions[self.mc_meta["pack"]["pack_format"]]
-    
+
     @property
     def description(self) -> str | None:
         """Returns the pack's description from the .mcmeta file."""
@@ -105,13 +103,13 @@ class TexturePackParser():
 
         return version
     
-    def detect_version(self, targeted_versions: Iterable[MCVersions] = None) -> MCVersions | int:
+    def detect_version(self, targeted_versions: Iterable[MCVersions] = None) -> Tuple[MCVersions, int]:
         """
         This is an internal method, use `TexturePackParser.version` instead. 
         This method tries to detect the game version this pack was made for. Returns version and the detected map difference of that version.
         """
         version_diff: Dict[int, MCVersions] = {}
-        self.logger.debug("Detecting minecraft version of this texture pack...")
+        self.logger.debug(f"Detecting minecraft version of '{self.actual_name}'...")
 
         if targeted_versions is None or len(targeted_versions) == 0:
             targeted_versions = MCVersions
@@ -138,10 +136,9 @@ class TexturePackParser():
         folder_structure = {}
         main_folder_name = os.path.split(self.texture_pack.path)[1]
 
-        # type 3 is a zip so we should use the zip walker I made instead.
         for foldername, _, filenames in os.walk(self.texture_pack.path):
             current_folder = folder_structure
-            subfolder_list = foldername.split(main_folder_name)[1].split(os.path.sep)
+            subfolder_list = foldername.split(main_folder_name, maxsplit = 1)[1].split(os.path.sep)
 
             for subfolder in subfolder_list[1:]:
                 if subfolder not in current_folder:
@@ -152,28 +149,22 @@ class TexturePackParser():
 
         return folder_structure
 
-    
-    # Partly stolen from: https://stackoverflow.com/questions/9807634/find-all-occurrences-of-a-key-in-nested-dictionaries-and-lists
-    # ----------------------------------------------------------------------------------------------------------------------------
-    def __find_assets_folder(self, folder_structure: dict):
+    def __find_assets_folder(self, folder_structure: Dict[str, List[str] | dict]):
         """
         Function that will walk into directory after directory to find the assets folder.
         """
 
-        if hasattr(folder_structure, 'items'):
+        for k, v in folder_structure.items():
+            if k == "files":
+                continue
 
-            for k, v in folder_structure.items():
-                if not k == "files":
-                    self.__path_to_assets += f"/{k}"
+            self.__path_to_assets += f"/{k}"
 
-                if k == "assets":
-                    yield True
+            if k == "assets":
+                self.logger.debug("Assets folder found!")
+                yield True
 
-                if isinstance(v, dict):
-                    for result in self.__find_assets_folder(v):
-                        yield result
+            if len(v.items()) == 1:
+                yield False # There's no assets folder.
 
-                elif isinstance(v, list):
-                    for d in v:
-                        for result in self.__find_assets_folder(d):
-                            yield result
+            yield next(self.__find_assets_folder(v))
