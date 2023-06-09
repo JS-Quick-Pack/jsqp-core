@@ -22,7 +22,7 @@ try:
     except IndexError:
         pass
 
-    json.dump(pack.pack_parser.map, open(f"{json_name}.json", mode="w"))
+    json.dump(pack.parser.map, open(f"{json_name}.json", mode="w"))
 
 except IndexError as e:
     core_logger.error(

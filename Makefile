@@ -1,5 +1,5 @@
-run:
-	cd demo && python run.py
+demo:
+	cd demo && python demo.py
 
 test:
 	ruff .

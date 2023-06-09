@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import os
 import json
-from deepdiff import DeepDiff
-from typing import TYPE_CHECKING, Dict, Tuple, final, TypedDict, Literal, Iterable, List
+#from deepdiff import DeepDiff
+from typing import TYPE_CHECKING, Dict, Tuple, final, TypedDict, Literal, Iterable, List, Generator, Any
 from devgoldyutils import LoggerAdapter, Colours, pprint, short_str
 
 from ... import core_logger
@@ -109,28 +109,36 @@ class TexturePackParser():
         This is an internal method, use `TexturePackParser.version` instead. 
         This method tries to detect the game version this pack was made for. Returns version and the detected map difference of that version.
         """
-        version_diff: Dict[int, MCVersions] = {}
+        version_diff: Dict[MCVersions, int] = {}
         self.logger.debug(f"Detecting minecraft version of '{self.actual_name}'...")
 
         if targeted_versions is None or len(targeted_versions) == 0:
             targeted_versions = MCVersions
 
         for version in targeted_versions:
+            self.logger.debug(f"Testing against '{version.name}' map...")
             json_file = open(f"{os.path.split(maps.__file__)[0]}/{version.value}.json", mode="r")
             json_file = json.load(json_file)
 
-            difference = DeepDiff(json_file, self.map)
+            #difference = DeepDiff(self.map, json_file)
+            #version_diff[version] = len(difference.affected_paths)
 
-            version_diff[len(difference.affected_paths)] = version
+            mc_map_files = next(self.__get_map_files(json_file))
+            texture_pack_map_files = next(self.__get_map_files(self.map))
 
-        detected_version_diff = sorted(version_diff)[0]
-        detected_version = version_diff[detected_version_diff]
+            difference = list(set(mc_map_files).symmetric_difference(set(texture_pack_map_files)))
+            #print(">", difference)
+            version_diff[version] = len(difference)
+
+        sorted_versions = sorted(version_diff, key=lambda x: version_diff[x])
+        detected_version = sorted_versions[0]
+
         self.logger.info(f"Detected Version -> {Colours.GREEN.apply(detected_version.name)}")
         self.logger.debug(
-            f"Version difference = {Colours.PINK_GREY.apply(str([f'{version_diff[x].name} ({x})' for x in sorted(version_diff)]))}"
+            f"Version difference = {Colours.PINK_GREY.apply(str([f'{x.name} ({version_diff[x]})' for x in sorted_versions]))}"
         )
 
-        return detected_version, detected_version_diff
+        return detected_version, version_diff[detected_version]
 
     def __get_folder_structure(self) -> dict:
         """Returns the folder structure of this texture pack."""
@@ -150,12 +158,12 @@ class TexturePackParser():
 
         return folder_structure
 
-    def __find_assets_folder(self, folder_structure: Dict[str, List[str] | dict]):
+    def __find_assets_folder(self, map: Dict[str, List[str] | dict]):
         """
         Function that will walk into directory after directory to find the assets folder.
         """
 
-        for k, v in folder_structure.items():
+        for k, v in map.items():
             if k == "files":
                 continue
 
@@ -169,3 +177,16 @@ class TexturePackParser():
                 yield False # There's no assets folder.
 
             yield next(self.__find_assets_folder(v))
+
+    def __get_map_files(self, map: dict) -> Generator[List[str], Any, Any]:
+        """Function returns all files from a texture pack map as a list."""
+        list = []
+
+        for key, value in map.items():
+            if key == "files":
+                list.extend(value)
+                continue
+
+            yield next(self.__get_map_files(value))
+
+        yield list
