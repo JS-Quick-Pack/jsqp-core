@@ -1,5 +1,7 @@
 """
 🟣 JS:QP Core, an open source minecraft package management library.
+
+Copyright (c) 2023-present Goldy
 """
 from typing import Final, Tuple
 

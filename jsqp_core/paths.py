@@ -50,12 +50,12 @@ class Paths():
         if more_paths_to_repair is None:
             more_paths_to_repair = []
 
-        self.logger.info(f"Creating/repairing appdata dir at '{self.jsqp_core_appdata_dir}'...")
+        self.logger.info(f"Repairing appdata dir at '{self.jsqp_core_appdata_dir}'...")
 
         os.makedirs(self.jsqp_core_appdata_dir, exist_ok=True)
 
         for path in more_paths_to_repair:
-            self.logger.debug(f"Repairing '{path}'...")
+            self.logger.debug(f"Creating '{path}'...")
             os.makedirs(path, exist_ok=True)
 
-        self.logger.info("Done creating/repairing appdata dir!")
+        self.logger.info("Done repairing appdata dir!")
