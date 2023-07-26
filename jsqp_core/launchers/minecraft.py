@@ -16,7 +16,7 @@ from devgoldyutils import Colours
 
 from .. import errors
 from ..paths import Paths
-from ..packages import Package
+from ..packages.package import Package
 from . import Launcher, LauncherInfo, LauncherNotFound
 
 if TYPE_CHECKING:

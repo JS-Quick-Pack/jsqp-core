@@ -1,6 +1,8 @@
 from typing import Dict, Tuple
 from ...mc_versions import MCVersions
 
+__all__ = ("pack_format_versions",)
+
 pack_format_versions: Dict[int, Tuple[MCVersions]] = {
     1: (MCVersions.JAVA_1_8,),
     2: (MCVersions.JAVA_1_10,),

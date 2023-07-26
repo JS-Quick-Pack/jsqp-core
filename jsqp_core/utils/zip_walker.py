@@ -1,9 +1,11 @@
 """
-My implementation os.walk but for zip files.
+My implementation of os.walk but for zip files.
 """
 import os
 from zipfile import ZipFile
 from typing import Dict, List, Generator, Tuple
+
+__all__ = ("zip_walk",)
 
 def zip_walk(path_to_zip: str) -> Generator[Tuple[str, None, List[str]], None, None]:
     """Directory tree generator for zip files."""

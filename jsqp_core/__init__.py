@@ -1,29 +1,14 @@
 """
 🟣 JS:QP Core, an open source minecraft package management library.
 """
-import logging
-from typing import Final
-from decouple import config
-from devgoldyutils import add_custom_handler, Colours
-
-core_logger = add_custom_handler(
-    logger = logging.getLogger(f"{Colours.PINK_GREY}JSQP{Colours.RED}_{Colours.CLAY}CORE{Colours.RESET}"),
-    level = logging.DEBUG if config("jsqp_debug", default = False) else logging.INFO
-)
-"""The jsqp core logger."""
+from typing import Final, Tuple
 
 # Clear the temporary directory.
 from .utils.temp import clear_temp
-clear_temp()
+clear_temp() # TODO: We need to change this.
 
 from .configuration import Config
 config = Config()
 
-
-# Module imports
-# ---------------
-from .mc_versions import MCVersions
-from .packages.texture_pack import TexturePack, TexturePackParser
-
-
+__all__: Final[Tuple[str]] = ("config",)
 __version__: Final[str] = "1.0dev1"
