@@ -2,7 +2,9 @@ import os
 import shutil
 from ..paths import Paths
 
-from .. import core_logger
+from ..logger import core_logger
+
+__all__ = ("clear_temp",)
 
 paths = Paths()
 
