@@ -10,7 +10,7 @@
 
 <div align="center">
 
-  ### > [🚀 Supported Launchers](https://github.com/JS-Quick-Pack/jsqp-core/blob/main/LAUNCHERS.md) <
+  ### [🚀 Supported Launchers](https://github.com/JS-Quick-Pack/jsqp-core/blob/main/LAUNCHERS.md)
   
 </div>
 
