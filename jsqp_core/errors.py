@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 from devgoldyutils import Colours
-from . import core_logger
+from .logger import core_logger
 
 import pathlib
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .packages import Package
+    from .packages.package import Package
     from .launchers import Launcher
 
 class JSQPCoreError(Exception):

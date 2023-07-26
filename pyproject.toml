@@ -24,7 +24,7 @@ dependencies = [
     "requests",
     "importlib-metadata; python_version<'3.8'",
 
-    "devgoldyutils>=2.5.3",
+    "devgoldyutils[pprint]",
     "deepdiff",
     "python-decouple>=3.7"
 ]

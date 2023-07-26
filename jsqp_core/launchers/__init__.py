@@ -4,10 +4,10 @@ from typing import TYPE_CHECKING
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from devgoldyutils import LoggerAdapter
-from .. import core_logger
+from ..logger import core_logger
 
 if TYPE_CHECKING:
-    from ..packages import Package
+    from ..packages.package import Package
 
 from ..errors import JSQPCoreError
 

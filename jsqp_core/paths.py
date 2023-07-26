@@ -5,7 +5,8 @@ import sys
 from typing import List
 from devgoldyutils import LoggerAdapter
 
-from . import core_logger, errors
+from . import errors
+from .logger import core_logger
 
 class Paths():
     """Class containing methods for finding required paths."""
