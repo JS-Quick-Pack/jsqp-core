@@ -14,7 +14,7 @@ from . import maps, pack_formats
 if TYPE_CHECKING:
     from ...packages.texture_pack import TexturePack
 
-__all__ = ("PackMeta", "MCMeta", "AssetsFolderNotFound", "TexturePackParser")
+__all__ = ("AssetsFolderNotFound", "TexturePackParser")
 
 PACK_FORMAT_TYPES = Literal[1, 2, 3, 4, 5, 6, 7, 8, 9]
 

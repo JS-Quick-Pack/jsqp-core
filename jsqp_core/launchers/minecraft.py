@@ -17,15 +17,17 @@ from devgoldyutils import Colours
 from .. import errors
 from ..paths import Paths
 from ..packages.package import Package
-from . import Launcher, LauncherInfo, LauncherNotFound
+from .launcher import Launcher, LauncherInfo, LauncherNotFound
 
 if TYPE_CHECKING:
     from ..packages.file_package import FilePackage
 
+__all__ = ("Minecraft", )
+
 paths = Paths()
 
 @final
-class LauncherProfile(TypedDict):
+class LauncherProfileDict(TypedDict):
     """Minecraft launcher profile dictatory."""
     created: str
     gameDir: str
@@ -37,7 +39,7 @@ class LauncherProfile(TypedDict):
 
 @final
 class LauncherProfilesDict(TypedDict):
-    profiles: Dict[str, LauncherProfile]
+    profiles: Dict[str, LauncherProfileDict]
     settings: dict
     version: int
 
@@ -87,7 +89,7 @@ class Minecraft(Launcher):
 
         raise LauncherNotFound(self)
     
-    def add_to_profiles(self, package: FilePackage, folder_name: str, profiles: List[LauncherProfile] = None, overwrite: bool = False) -> List[LauncherProfile]:
+    def add_to_profiles(self, package: FilePackage, folder_name: str, profiles: List[LauncherProfileDict] = None, overwrite: bool = False) -> List[LauncherProfileDict]:
         """
         Method that adds a file package to the game profiles in the Minecraft Launcher.
         Returns the profiles that the package was added to.
