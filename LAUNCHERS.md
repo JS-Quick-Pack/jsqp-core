@@ -2,14 +2,14 @@
 
   # 🚀 Launchers
   
-  ### Launchers that are compatiable with jsqp core.
+  ### Launchers that are compatible with jsqp core.
   
 </div>
 
-> ## Click on the hyperlinks for more infomation about the support of a specific launcher.
+Click on the hyperlinks for more information about the support of a specific launcher.
 
-- ### [Minecraft Launcher](./jsqp_core/launchers/minecraft.md)
+- ### [``Microsoft`` Minecraft Launcher](./jsqp_core/launchers/minecraft.md)
 
 <br>
 
-> Have launcher you would like for us to support, open an issue.
+> Have a launcher you would like for us to support, open an [issue](https://github.com/JS-Quick-Pack/jsqp-core/issues).
