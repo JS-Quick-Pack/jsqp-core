@@ -60,8 +60,8 @@ class FilePackage(Package):
 
     @property
     @abstractmethod
-    def install_location(self) -> str:
-        """Returns the jsqp install location for this file package."""
+    def package_install_location(self) -> str:
+        """Location of where this package is supposed to be installed. NOT the actual installed location."""
         return Paths().jsqp_core_appdata_dir + "/packages"
 
     @property
@@ -109,15 +109,15 @@ class FilePackage(Package):
 
         # Move the package to JSQPCore install location directory.
         try:
-            self.move(self.install_location, overwrite, config.no_copy)
+            self.move(self.package_install_location, overwrite, config.no_copy)
         except FileNotFoundError:
             # Repair and try again if file is not found.
             # -------------------------------------------
             Paths().repair_app_data_dir([
-                self.install_location
+                self.package_install_location
             ])
 
-            self.move(self.install_location, overwrite, config.no_copy)
+            self.move(self.package_install_location, overwrite, config.no_copy)
         except FileExistsError:
             raise errors.PackageAlreadyExist(self)
 
@@ -137,6 +137,7 @@ class FilePackage(Package):
             os.link(self.path.absolute(), target_location)
             self.logger.debug(f"Created symbolic link '{self.name}' at '{location}'.")
         except FileExistsError:
+            # TODO: We probably would want to overwrite it instead of causing an exception.
             self.logger.warning("Didn't create symbolic link as it already exists.")
 
     def move(self, path: str, overwrite: bool = False, no_copy: bool = True) -> None:
@@ -144,7 +145,7 @@ class FilePackage(Package):
         new_path = f"{path}/{self.path.name}"
         self.logger.info(f"Moving '{self.display_name}' to '{os.path.split(new_path)[0]:.60}'...")
 
-        if overwrite:
+        if overwrite or config.overwrite:
             self.logger.info("Overwriting as it already exists...")
             if os.path.isdir(new_path):
                 shutil.rmtree(new_path, True)
@@ -156,7 +157,7 @@ class FilePackage(Package):
 
         shutil.copy2(self.path.absolute(), new_path)
 
-        # Delete if the user only doesn't want to copy the file.
+        # Delete if the user only wants to copy the file.
         if no_copy is False:
             self.delete()
 

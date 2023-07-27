@@ -76,7 +76,9 @@ class TexturePackParser():
     
     @property
     def mc_meta(self) -> MCMeta:
+        self.logger.debug("Opening pack.mcmeta...")
         file = open(self.root_path + "/pack.mcmeta", mode="r")
+        self.logger.debug("Parsing pack.mcmeta...")
         json_dict = json.load(file)
         file.close()
         return json_dict

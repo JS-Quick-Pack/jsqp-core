@@ -75,7 +75,7 @@ class Minecraft(Launcher):
 
     def find_launcher(self) -> Tuple[str, str]:
         """Method that tries to find the minecraft launcher on your os and returns the path and type of installation."""
-        if sys.platform == "win32": # For the windows normies. You know literally 90% of players.
+        if sys.platform == "win32": # For the windows normies. You know literally 99.9% of players.
             return paths.appdata_dir + "/.minecraft", "official"
 
         elif sys.platform == "linux": # For the Linux nerds like me. 🤓

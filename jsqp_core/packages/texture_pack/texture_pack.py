@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import time
-from devgoldyutils import LoggerAdapter
-from typing import TYPE_CHECKING
+from devgoldyutils import LoggerAdapter, Colours
+from typing import TYPE_CHECKING, Tuple
 from pathlib import Path
 
 from ... import config
@@ -21,13 +21,14 @@ class TexturePack(FilePackage):
     """
     Class that allows you to represent a file as a texture pack and install it to your minecraft game.
     """
-    def __init__(self, path_to_texture_pack: str, mc_version: MCVersions | int = None):
+    def __init__(self, path_to_texture_pack: str, minecraft_version: MCVersions | int = None):
         self.logger = LoggerAdapter(core_logger, "TexturePack")
 
         super().__init__(
             path_to_texture_pack
         )
-        self.__mc_ver = mc_version
+
+        self.__mc_ver = minecraft_version
 
         self.parser = TexturePackParser(self)
         """The pack's parser class."""
@@ -45,17 +46,17 @@ class TexturePack(FilePackage):
         return "".join([x[1:] if not x[0] == self.name[0] else x for x in self.name.replace("  ", "").split("§")])
 
     @property
-    def install_location(self) -> str:
-        return super().install_location + "/texture_packs"
+    def package_install_location(self) -> str:
+        return super().package_install_location + "/texture_packs"
 
     @property
-    def mc_version(self) -> int:
+    def minecraft_version(self) -> int:
         """Returns the minecraft version this pack was made for."""
         if self.__mc_ver is not None:
-            return self.__mc_ver.value if isinstance(self.__mc_ver, MCVersions) else self.__mc_ver
+            return self.__mc_ver.value if isinstance(self.__mc_ver, MCVersions) else self.__mc_ver # Might change this in the future. (make it valid versions only)
 
-        return self.parser.version
-    
+        return self.parser.version.value
+
     @property
     def mc_meta(self) -> MCMeta:
         """Returns a dictatory of the pack's .mcmeta file."""
@@ -66,6 +67,12 @@ class TexturePack(FilePackage):
         """Returns the pack's description from the .mcmeta file."""
         return self.parser.description
 
+    @property
+    def ___package_repr___(self) -> Tuple[str, dict]:
+        return f"🖌️  {Colours.GREEN.apply('TexturePack')} = ", {
+            "display_name": self.display_name, "mc_meta": self.mc_meta, "minecraft_version": self.minecraft_version
+        }
+
     def install(self, launcher: Launcher = None, overwrite: bool = False, copy_it: bool = False):
         """
         Method that allows you to install this pack into your minecraft game.
@@ -75,13 +82,7 @@ class TexturePack(FilePackage):
         if launcher is None: # Default launcher is the official minecraft launcher.
             launcher = Minecraft()
             self.logger.info(f"Launcher was not specified so I'm defaulting to '{launcher.display_name}'.")
-            if not config.performance_mode: time.sleep(1.5)
-
-        if config.debug_mode and config.performance_mode is False:
-            self.logger.warn(
-                "\u001b[33;20mTexture packs will take longer to install because logging level is set to DEBUG! Please set logging level to info unless you know what you are doing.\u001b[0m"
-            )
-            time.sleep(2)
+            if not config.performance_mode: time.sleep(1.5) # Will probably remove this.
 
         start_time = time.perf_counter()
 
