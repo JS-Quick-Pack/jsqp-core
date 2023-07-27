@@ -5,6 +5,7 @@ import json
 #from deepdiff import DeepDiff
 from typing import TYPE_CHECKING, Dict, Tuple, final, TypedDict, Literal, Iterable, List, Generator, Any
 from devgoldyutils import LoggerAdapter, Colours, pprint, short_str
+from io import StringIO
 
 from ...logger import core_logger
 from ...mc_versions import MCVersions
@@ -28,13 +29,28 @@ class MCMeta(TypedDict):
     pack: PackMeta
 
 class AssetsFolderNotFound(JSQPCoreError):
+    """Raises when the texture pack's assets folder is not found for some reason."""
     def __init__(self, texture_pack: TexturePack, map: dict):
         pprint(map, depth=8, max_seq_len=3)
         texture_pack.logger.info(Colours.ORANGE.apply("^ The texture pack's map has been printed above ^"))
 
         super().__init__(
             f"The assets folder for the texture pack at '{texture_pack.path}' can't be found therefore this texture pack can't be phrased correctly!" \
-            f"{Colours.BLUE} Make sure your pack is structured correctly and has an assets folder.{Colours.RESET}"
+                f"{Colours.BLUE} Make sure your pack is structured correctly and has an assets folder.{Colours.RESET}"
+        )
+
+class UnsupportedPackFormat(JSQPCoreError):
+    """Raises when the texture pack's assets folder is not found for some reason."""
+    def __init__(self, texture_pack: TexturePack, key_error: KeyError):
+        stream = StringIO()
+        pprint(pack_formats.pack_format_versions, stream)
+        stream.seek(0)
+
+        super().__init__(
+            f"This texture pack format seems to not be supported yet. This usually means your pack is too new for quick pack to phrase correctly.\n" \
+                "Make sure to update quick pack core: pip install jsqp-core -U\n\n" \
+                f"{Colours.RESET}{texture_pack.display_name}'s Format: {Colours.CLAY.apply(str(key_error))}\n" \
+                f"{Colours.BLUE.apply('Formats we currently support:')}\n{stream.read()}" \
         )
 
 class TexturePackParser():
@@ -86,7 +102,10 @@ class TexturePackParser():
     @property
     def pack_format(self) -> Tuple[PACK_FORMAT_TYPES, Tuple[MCVersions]]:
         """Returns the pack format of this pack and the versions that pack format corresponds to."""
-        return self.mc_meta["pack"]["pack_format"], pack_formats.pack_format_versions[self.mc_meta["pack"]["pack_format"]]
+        try:
+            return self.mc_meta["pack"]["pack_format"], pack_formats.pack_format_versions[self.mc_meta["pack"]["pack_format"]]
+        except KeyError as e:
+            raise UnsupportedPackFormat(self.texture_pack, e)
 
     @property
     def description(self) -> str | None:
