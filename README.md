@@ -14,6 +14,31 @@
   
 </div>
 
+```python
+from jsqp_core.packages import TexturePack
+
+pack = TexturePack("./Whimscape_1.20_r3.zip")
+
+print(pack)
+```
+#### Output
+```python
+[INFO] (JSQP_CORE) - [TexturePackParser] [Whimscape_1.20_r3] Parsed the texture pack 'Whimscape_1.20_r3'!
+[INFO] (JSQP_CORE) - [TexturePackParser] [Whimscape_1.20_r3] Detected Version -> JAVA_1_20
+🖌️  TexturePack = {
+    'display_name': 'Whimscape_1.20_r3',
+    'mc_meta': {
+        'pack': {'pack_format': 15, 'description': '§6A crisp pixel art look'}
+    },
+    'minecraft_version': '1.20'
+}
+```
+<div align="center">
+
+  #### [Want to see what is going on under the hood of this example?](#under-the-hood-of-the-example)
+  
+</div>
+
 ## 🤔 What the hell is this?
 🟣 ``JS:QP Core`` is an open-source Minecraft package manager written in Python.
 
@@ -40,3 +65,69 @@ JS:QP core may seem useless to you right now. That's because it is! JS:QP core i
 
 ## 🏆 Our Goal
 The goal of JSQPCore is to create an open-source library that can manage resources like texture packs, mods, data packs, skins and a lot more from Minecraft. Alongside that, because of its 100% open-source nature, we plan to support as many Minecraft launchers and versions as possible, encouraging the community to do so too.
+
+<br>
+
+## 🤓 The Nerdy Stuff
+<div align="center">
+
+  ### Under the hood of the example.
+  Let's re-run the example code from earlier with debugging enabled. ✨
+  
+</div>
+
+```python
+import logging
+
+from jsqp_core.logger import core_logger
+from jsqp_core.packages import TexturePack
+
+core_logger.setLevel(logging.DEBUG) # Debugging mode, also know as 🤓 nerd mode...
+
+pack = TexturePack("./Whimscape_1.20_r3.zip")
+
+print(pack)
+```
+#### Output
+```python
+[DEBUG] (JSQP_CORE) - [FilePackage] Extracting zip to temp directory...
+[DEBUG] (JSQP_CORE) - [TexturePackParser] [Whimscape_1.20_r3] Assets folder found!
+[INFO] (JSQP_CORE) - [TexturePackParser] [Whimscape_1.20_r3] Parsed the texture pack 'Whimscape_1.20_r3'!
+[DEBUG] (JSQP_CORE) - [Package] Updated file package path object to '/home/goldy/.devgoldy/JSQPCore/.temp/Whimscape_1.20_r3'!
+[DEBUG] (JSQP_CORE) - [Package] Updated package name to 'Whimscape_1.20_r3'!
+[DEBUG] (JSQP_CORE) - [Package] Texture Pack Initialized!
+[DEBUG] (JSQP_CORE) - [TexturePackParser] [Whimscape_1.20_r3] Parsing pack.mcmeta...
+[DEBUG] (JSQP_CORE) - [TexturePackParser] [Whimscape_1.20_r3] Parsing pack.mcmeta...
+[DEBUG] (JSQP_CORE) - [TexturePackParser] [Whimscape_1.20_r3] Parsing pack.mcmeta...
+[DEBUG] (JSQP_CORE) - [TexturePackParser] [Whimscape_1.20_r3] Detecting minecraft version of 'Whimscape_1.20_r3'...
+[DEBUG] (JSQP_CORE) - [TexturePackParser] [Whimscape_1.20_r3] Testing against 'JAVA_1_20' map...
+[INFO] (JSQP_CORE) - [TexturePackParser] [Whimscape_1.20_r3] Detected Version -> JAVA_1_20
+[DEBUG] (JSQP_CORE) - [TexturePackParser] [Whimscape_1.20_r3] Version difference = ['JAVA_1_20 (64)']
+🖌️  TexturePack = {
+    'display_name': 'Whimscape_1.20_r3',
+    'mc_meta': {
+        'pack': {'pack_format': 15, 'description': '§6A crisp pixel art look'}
+    },
+    'minecraft_version': '1.20'
+}
+```
+
+<div align="center">
+
+  ### Oh yeah btw all of that info can be accessed as attributes.
+  
+</div>
+
+```python
+pack = TexturePack("./Whimscape_1.20_r3.zip")
+
+print(pack.name)
+print(pack.display_name)
+print(pack.description)
+print(pack.minecraft_version)
+print(pack.mc_meta)
+print(pack.parser.root_path)
+print(pack.parser.assets_path)
+```
+
+> ### Much more nerdy stuff will come soon...
