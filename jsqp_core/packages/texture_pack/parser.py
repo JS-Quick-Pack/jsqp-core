@@ -58,7 +58,9 @@ class TexturePackParser():
     def __init__(self, texture_pack: TexturePack) -> None:
         self.texture_pack = texture_pack
 
-        self.logger = LoggerAdapter(LoggerAdapter(core_logger, "TexturePackParser"), prefix = Colours.PINK_GREY.apply(short_str(texture_pack.name)))
+        self.logger = LoggerAdapter(
+            LoggerAdapter(core_logger, "TexturePackParser"), prefix = Colours.PINK_GREY.apply(short_str(texture_pack.name))
+        )
 
         self.__path_to_assets = ""
         """The path to the assets folder, this is automatically assigned by ``.__find_assets_folder()``."""
@@ -92,9 +94,8 @@ class TexturePackParser():
     
     @property
     def mc_meta(self) -> MCMeta:
-        self.logger.debug("Opening pack.mcmeta...")
-        file = open(self.root_path + "/pack.mcmeta", mode="r")
         self.logger.debug("Parsing pack.mcmeta...")
+        file = open(self.root_path + "/pack.mcmeta", mode="r")
         json_dict = json.load(file)
         file.close()
         return json_dict
@@ -116,20 +117,20 @@ class TexturePackParser():
     def version(self) -> MCVersions:
         """Returns the minecraft version this pack belongs to."""
         version, version_diff = self.detect_version(self.pack_format[1])
-        
+
         if version_diff > 100: # If the version difference is too big target all versions.
             self.logger.warning(
-                "We are detecting a large version difference, " \
+                "We are detecting large version differences, " \
                 "If the detected pack version is false PLEASE report an issue at https://github.com/JS-Quick-Pack/jsqp-core/issues."
             )
             self.logger.debug("Trying again but with all minecraft versions instead...")
             version = self.detect_version(MCVersions)[0]
 
         return version
-    
+
     def detect_version(self, targeted_versions: Iterable[MCVersions] = None) -> Tuple[MCVersions, int]:
         """
-        This is an internal method, use `TexturePackParser.version` instead. 
+        NOTICE: If you just want the pack version use `TexturePackParser.version` instead.
         This method tries to detect the game version this pack was made for. Returns version and the detected map difference of that version.
         """
         version_diff: Dict[MCVersions, int] = {}
