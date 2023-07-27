@@ -26,7 +26,7 @@ class PackageAlreadyExist(JSQPCoreError):
 class FilePackageDoesNotExist(JSQPCoreError):
     def __init__(self, path: pathlib.Path):
         super().__init__(
-            f"'{str(path)}' does not exist. Are you sure you typed it correctly."
+            f"'{str(path)}' does not exist. Are you sure you typed the path correctly."
         )
 
 class PackageNotSupported(JSQPCoreError):
