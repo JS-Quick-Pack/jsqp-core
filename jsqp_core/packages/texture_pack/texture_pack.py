@@ -46,8 +46,8 @@ class TexturePack(FilePackage):
         return "".join([x[1:] if not x[0] == self.name[0] else x for x in self.name.replace("  ", "").split("§")])
 
     @property
-    def package_install_location(self) -> str:
-        return super().package_install_location + "/texture_packs"
+    def package_install_path(self) -> str:
+        return super().package_install_path + "/texture_packs"
 
     @property
     def minecraft_version(self) -> int:

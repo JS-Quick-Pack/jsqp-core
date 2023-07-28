@@ -6,7 +6,7 @@ from io import FileIO
 from enum import Enum
 from pathlib import Path
 from zipfile import ZipFile
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 from devgoldyutils import LoggerAdapter
 
 from ..paths import Paths
@@ -23,7 +23,7 @@ class FileTypes(Enum):
     SYMBOLIC_LINK = 2
     ZIP = 3
 
-class FilePackage(Package):
+class FilePackage(Package, ABC):
     """A package represented as an actual file."""
     def __init__(
         self, 
@@ -60,7 +60,7 @@ class FilePackage(Package):
 
     @property
     @abstractmethod
-    def package_install_location(self) -> str:
+    def package_install_path(self) -> str:
         """Location of where this package is supposed to be installed. NOT the actual installed location."""
         return Paths().jsqp_core_appdata_dir + "/packages"
 
@@ -109,15 +109,15 @@ class FilePackage(Package):
 
         # Move the package to JSQPCore install location directory.
         try:
-            self.move(self.package_install_location, overwrite, config.no_copy)
+            self.move(self.package_install_path, overwrite, config.no_copy)
         except FileNotFoundError:
             # Repair and try again if file is not found.
             # -------------------------------------------
             Paths().repair_app_data_dir([
-                self.package_install_location
+                self.package_install_path
             ])
 
-            self.move(self.package_install_location, overwrite, config.no_copy)
+            self.move(self.package_install_path, overwrite, config.no_copy)
         except FileExistsError:
             raise errors.PackageAlreadyExist(self)
 
