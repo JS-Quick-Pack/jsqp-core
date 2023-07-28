@@ -34,3 +34,12 @@ class Config():
     @overwrite.setter
     def overwrite(self, x: bool):
         os.environ["JSQP_OVERWRITE"] = str(x).lower()
+
+    @property
+    def test_all_versions(self) -> bool:
+        """When enabled texture packs will be tested against all minecraft versions during version detection."""
+        return self.env("JSQP_TEST_ALL_VERSIONS", default = False)
+
+    @test_all_versions.setter
+    def test_all_versions(self, x: bool):
+        os.environ["JSQP_TEST_ALL_VERSIONS"] = str(x).lower()

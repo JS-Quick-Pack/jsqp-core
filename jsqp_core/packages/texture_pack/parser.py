@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Dict, Tuple, final, TypedDict, Literal, Iterab
 from devgoldyutils import LoggerAdapter, Colours, pprint, short_str
 from io import StringIO
 
+from ... import __version__, config
 from ...logger import core_logger
 from ...mc_versions import MCVersions
 from ...errors import JSQPCoreError
@@ -37,20 +38,6 @@ class AssetsFolderNotFound(JSQPCoreError):
         super().__init__(
             f"The assets folder for the texture pack at '{texture_pack.path}' can't be found therefore this texture pack can't be phrased correctly!" \
                 f"{Colours.BLUE} Make sure your pack is structured correctly and has an assets folder.{Colours.RESET}"
-        )
-
-class UnsupportedPackFormat(JSQPCoreError):
-    """Raises when the texture pack's assets folder is not found for some reason."""
-    def __init__(self, texture_pack: TexturePack, key_error: KeyError):
-        stream = StringIO()
-        pprint(pack_formats.pack_format_versions, stream)
-        stream.seek(0)
-
-        super().__init__(
-            f"This texture pack format seems to not be supported yet. This usually means your pack is too new for quick pack to phrase correctly.\n" \
-                "Make sure to update quick pack core: pip install jsqp-core -U\n\n" \
-                f"{Colours.RESET}{texture_pack.display_name}'s Format: {Colours.CLAY.apply(str(key_error))}\n" \
-                f"{Colours.BLUE.apply('Formats we currently support:')}\n{stream.read()}" \
         )
 
 class TexturePackParser():
@@ -106,16 +93,26 @@ class TexturePackParser():
         try:
             return self.mc_meta["pack"]["pack_format"], pack_formats.pack_format_versions[self.mc_meta["pack"]["pack_format"]]
         except KeyError as e:
-            raise UnsupportedPackFormat(self.texture_pack, e)
+            self.logger.error(
+                f"This texture pack's format seems to not be supported yet. Version detection will NOT be correct! " \
+                "Update jsqp-core to fix this as we may support this pack format in a newer version. " \
+                f"[Pack Format: {Colours.ORANGE.apply(str(e))} | " \
+                f"JS:QP Core Version: {Colours.BLUE.apply(__version__)}]"
+            )
+
+            return self.mc_meta["pack"]["pack_format"], pack_formats.pack_format_versions[15]
 
     @property
     def description(self) -> str | None:
         """Returns the pack's description from the .mcmeta file."""
         return self.mc_meta["pack"].get("description", None)
-    
+
     @property
     def version(self) -> MCVersions:
         """Returns the minecraft version this pack belongs to."""
+        if config.test_all_versions:
+            return self.detect_version(MCVersions)[0]
+
         version, version_diff = self.detect_version(self.pack_format[1])
 
         if version_diff > 100: # If the version difference is too big target all versions.
@@ -140,7 +137,7 @@ class TexturePackParser():
             targeted_versions = MCVersions
 
         for version in targeted_versions:
-            self.logger.debug(f"Testing against '{version.name}' map...")
+            self.logger.debug(f"Testing against '{version.name}' mappings...")
             json_file = open(f"{os.path.split(maps.__file__)[0]}/{version.value}.json", mode="r")
             json_file = json.load(json_file)
 
