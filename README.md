@@ -54,7 +54,7 @@ It can already:
 Imagine you had a bunch of texture packs on different Minecraft installs, now you have to manually move/copy those packs around whenever you want one on a different installation. JS:QP core can manage all of that for you with just a SINGLE copy of that texture pack increasing the unused disk space on your system.
 
 ## 🧠 I'm still not buying it.
-JS:QP core may seem useless to you right now. That's because it is! JS:QP core is only a library at the moment and without anything hooking into it, it's boring. Soon we'll have things like GUIs and command-line interfaces. You are also open to using this library however you want.
+The current state of JS:QP core may appear underwhelming as it currently functions solely as a library without any practical implementations **yet**. Soon we'll have things like GUI apps, command-line interfaces and more. You are also open to using this library however you want. I'm designing this library in a way that allows you to leverage it in any way you see fit.
 
 ## ❓ *Questions, I guess...*
   - Is jsqp core just for texture packs?
