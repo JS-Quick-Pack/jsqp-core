@@ -16,7 +16,6 @@ from devgoldyutils import Colours
 
 from .. import errors
 from ..paths import Paths
-from ..packages.package import Package
 from .launcher import Launcher, LauncherInfo, LauncherNotFound
 
 if TYPE_CHECKING:
@@ -135,5 +134,5 @@ class Minecraft(Launcher):
 
         raise errors.PackageNotSupported(package, self)
 
-    def uninstall(self, package: Package, performance_mode: bool = False) -> bool:
+    def uninstall(self, package: FilePackage, performance_mode: bool = False) -> bool:
         ...
