@@ -44,7 +44,7 @@ print(pack)
 
 > WHY THE FUCK DO I NEED A PACKAGE MANAGER FOR MINECRAFT, you may ask...
 
-First of all, jsqp-core isn't just a package manager, it will also become our API capable of abilities from managing Minecraft content to editing content all programmatically via Python.
+First of all, jsqp-core isn't just a package manager; it will also serve as our API capable of handling various tasks from managing Minecraft content to programmatically editing content all via Python.
 
 It can already:
 - Detect the exact Minecraft version of texture packs.
