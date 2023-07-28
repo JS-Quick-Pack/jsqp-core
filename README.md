@@ -48,8 +48,30 @@ First of all, jsqp-core isn't just a package manager; it will also serve as our 
 
 It can already:
 - Detect the exact Minecraft version of texture packs.
+  ```python
+  pack = TexturePack("./goldish_pack")
+  print(pack.minecraft_version)
+  ```
 - Parse texture packs for details like pack format, real pack name and pack description.
-- *and do much more*
+  ```python
+  pack = TexturePack("./goldish_pack")
+  
+  print(pack.name)
+  print(pack.description)
+  print(pack.mc_meta)
+  
+  # There are also some low-level attributes like paths under the parser.
+  print(pack.parser.root_path)
+  print(pack.parser.assets_path)
+  ```
+- Install packs into the game.
+  ```python
+  minecraft = Minecraft()
+  pack = TexturePack("./goldish_pack")
+  
+  minecraft.install(pack)
+  ```
+- *and much more*
 
 Imagine you had a bunch of texture packs on different Minecraft installs, now you have to manually move/copy those packs around whenever you want one on a different installation. JS:QP core can manage all of that for you with just a SINGLE copy of that texture pack increasing the unused disk space on your system.
 
@@ -72,7 +94,7 @@ The goal of JSQPCore is to create an open-source library that can manage resourc
 <div align="center">
 
   ### Under the hood of the example.
-  Let's re-run the example code from earlier with debugging enabled. ✨
+  Let's re-run the example code from earlier with debugging enabled to showcase to you what is going on under the hood. ✨
   
 </div>
 
