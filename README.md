@@ -44,11 +44,11 @@ print(pack)
 
 > WHY THE FUCK DO I NEED A PACKAGE MANAGER FOR MINECRAFT, you may ask...
 
-First of all, jsqp-core isn't just a package manager, it will be able to do a bunch of useful stuff programmatically.
+First of all, jsqp-core isn't just a package manager, it will also become our API capable of abilities from managing Minecraft content to editing content all programmatically via Python.
 
 It can already:
-- Detect the exact Minecraft version of a texture pack.
-- Parse texture packs for stuff like pack format, legit pack name and pack description.
+- Detect the exact Minecraft version of texture packs.
+- Parse texture packs for details like pack format, real pack name and pack description.
 - *and do much more*
 
 Imagine you had a bunch of texture packs on different Minecraft installs, now you have to manually move/copy those packs around whenever you want one on a different installation. JS:QP core can manage all of that for you with just a SINGLE copy of that texture pack increasing the unused disk space on your system.
@@ -58,12 +58,12 @@ The current state of JS:QP core may appear underwhelming as it currently functio
 
 ## ❓ *Questions, I guess...*
   - Is jsqp core just for texture packs?
-    - Nope, jsqp core will soon manage more than just texture packs, it's only that our focus right now is texture packs but once that is all gucci we can begin handling more stuff like mods, data packs and skins.
+    - Nope, jsqp core will soon manage more than just texture packs, it's only that our focus right now is texture packs but once that is all gucci we can begin handling other content like mods, data packs and skins.
 
   - What is the `jsqp` in jsqp core?
-    - This library was meant to be built within the [JS:QP app](https://github.com/JS-Quick-Pack/jsqp-app) which is gui app I used to work on but I decided to separate it for the good of it being a standalone open-source library and becoming easier for us to manage.
+    - This library was meant to be written within the [JS:QP app](https://github.com/JS-Quick-Pack/jsqp-app) which was a gui app I used to work on. I decided to separate the two codebases for the good of it being a standalone open-source library other developers can leverage and allowing us to maintain the codebase easier than ever.
 
-## 🏆 Our Goal
+## 🏆 The Goal
 The goal of JSQPCore is to create an open-source library that can manage resources like texture packs, mods, data packs, skins and a lot more from Minecraft. Alongside that, because of its 100% open-source nature, we plan to support as many Minecraft launchers and versions as possible, encouraging the community to do so too.
 
 <br>
