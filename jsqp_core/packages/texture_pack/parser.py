@@ -52,9 +52,9 @@ class TexturePackParser():
         self.__path_to_assets = ""
         """The path to the assets folder, this is automatically assigned by ``.__find_assets_folder()``."""
 
-        self.original_pack_path = texture_pack.path
+        self.__original_pack_path = texture_pack.path
         """A copy of the path object for the texture pack when this parser was initialized."""
-        
+
         self.map = self.__get_folder_structure()
         """Folder structure of this texture pack."""
 
@@ -73,7 +73,7 @@ class TexturePackParser():
     @property
     def root_path(self) -> str:
         """Returns the real root path of this texture pack. E.g. where the ``assets``, ``pack.mcmeta`` and ``pack.png`` is stored."""
-        return os.path.join(str(self.original_pack_path.absolute()), *os.path.split(self.__path_to_assets)[0].split(os.path.sep))
+        return os.path.join(str(self.__original_pack_path.absolute()), *os.path.split(self.__path_to_assets)[0].split(os.path.sep))
 
     @property
     def assets_path(self) -> str:
@@ -188,7 +188,7 @@ class TexturePackParser():
             if k == "files":
                 continue
 
-            self.__path_to_assets += f"/{k}"
+            self.__path_to_assets += f"{os.path.sep}{k}"
 
             if k == "assets":
                 self.logger.debug("Assets folder found!")

@@ -10,9 +10,10 @@ from ...logger import core_logger
 from ...mc_versions import MCVersions
 from ..file_package import FilePackage
 from ...launchers.minecraft import Minecraft
-from .parser import TexturePackParser, MCMeta
+from .parser import TexturePackParser
 
 if TYPE_CHECKING:
+    from .parser import MCMeta
     from ...launchers import Launcher
 
 __all__ = ("TexturePack",)
