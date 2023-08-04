@@ -46,7 +46,14 @@ class FilePackage(Package, ABC):
             self.logger.debug("Extracting zip to temp directory...")
             temp_path = Paths().temp_dir + f"/{path.name[:-4]}"
 
-            ZipFile(path.absolute()).extractall(temp_path)
+            try:
+                ZipFile(path.absolute()).extractall(temp_path)
+            except Exception as e:
+                raise errors.JSQPCoreError(
+                    "This error is most likely NOT a bug in jsqp! It seems ZipFile couldn't extract your package. " \
+                    "This could mean your package is corrupted in some way or another. " \
+                    f"Error >> {e}"
+                )
 
             path = Path(temp_path)
 
@@ -90,7 +97,6 @@ class FilePackage(Package, ABC):
     @property
     def type(self) -> FileTypes:
         """Returns the type of FilePackage. Is it a folder? Is it a file?"""
-
         if self.path.is_file():
             if self.path.suffix == ".zip":
                 return FileTypes.ZIP
