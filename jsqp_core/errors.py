@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 class JSQPCoreError(Exception):
     """Raises whenever there's a known error in jsqp core."""
     def __init__(self, message: str):
-        core_logger.error(message)
+        core_logger.critical(message)
         super().__init__(Colours.RED.apply(message))
 
 class PackageAlreadyExist(JSQPCoreError):
@@ -26,7 +26,7 @@ class PackageAlreadyExist(JSQPCoreError):
 class FilePackageDoesNotExist(JSQPCoreError):
     def __init__(self, path: pathlib.Path):
         super().__init__(
-            f"'{str(path)}' does not exist. Are you sure you typed it correctly."
+            f"'{str(path)}' does not exist. Are you sure you typed the path correctly."
         )
 
 class PackageNotSupported(JSQPCoreError):

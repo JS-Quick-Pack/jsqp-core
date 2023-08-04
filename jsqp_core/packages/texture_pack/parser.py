@@ -5,7 +5,9 @@ import json
 #from deepdiff import DeepDiff
 from typing import TYPE_CHECKING, Dict, Tuple, final, TypedDict, Literal, Iterable, List, Generator, Any
 from devgoldyutils import LoggerAdapter, Colours, pprint, short_str
+from io import StringIO
 
+from ... import __version__, config
 from ...logger import core_logger
 from ...mc_versions import MCVersions
 from ...errors import JSQPCoreError
@@ -14,7 +16,7 @@ from . import maps, pack_formats
 if TYPE_CHECKING:
     from ...packages.texture_pack import TexturePack
 
-__all__ = ("PackMeta", "MCMeta", "AssetsFolderNotFound", "TexturePackParser")
+__all__ = ("AssetsFolderNotFound", "TexturePackParser")
 
 PACK_FORMAT_TYPES = Literal[1, 2, 3, 4, 5, 6, 7, 8, 9]
 
@@ -28,13 +30,14 @@ class MCMeta(TypedDict):
     pack: PackMeta
 
 class AssetsFolderNotFound(JSQPCoreError):
+    """Raises when the texture pack's assets folder is not found for some reason."""
     def __init__(self, texture_pack: TexturePack, map: dict):
         pprint(map, depth=8, max_seq_len=3)
         texture_pack.logger.info(Colours.ORANGE.apply("^ The texture pack's map has been printed above ^"))
 
         super().__init__(
             f"The assets folder for the texture pack at '{texture_pack.path}' can't be found therefore this texture pack can't be phrased correctly!" \
-            f"{Colours.BLUE} Make sure your pack is structured correctly and has an assets folder.{Colours.RESET}"
+                f"{Colours.BLUE} Make sure your pack is structured correctly and has an assets folder.{Colours.RESET}"
         )
 
 class TexturePackParser():
@@ -42,14 +45,16 @@ class TexturePackParser():
     def __init__(self, texture_pack: TexturePack) -> None:
         self.texture_pack = texture_pack
 
-        self.logger = LoggerAdapter(LoggerAdapter(core_logger, "TexturePackParser"), prefix = Colours.PINK_GREY.apply(short_str(texture_pack.name)))
+        self.logger = LoggerAdapter(
+            LoggerAdapter(core_logger, "TexturePackParser"), prefix = Colours.PINK_GREY.apply(short_str(texture_pack.name))
+        )
 
         self.__path_to_assets = ""
         """The path to the assets folder, this is automatically assigned by ``.__find_assets_folder()``."""
 
-        self.original_pack_path = texture_pack.path
+        self.__original_pack_path = texture_pack.path
         """A copy of the path object for the texture pack when this parser was initialized."""
-        
+
         self.map = self.__get_folder_structure()
         """Folder structure of this texture pack."""
 
@@ -68,7 +73,7 @@ class TexturePackParser():
     @property
     def root_path(self) -> str:
         """Returns the real root path of this texture pack. E.g. where the ``assets``, ``pack.mcmeta`` and ``pack.png`` is stored."""
-        return os.path.join(str(self.original_pack_path.absolute()), *os.path.split(self.__path_to_assets)[0].split(os.path.sep))
+        return os.path.join(str(self.__original_pack_path.absolute()), *os.path.split(self.__path_to_assets)[0].split(os.path.sep))
 
     @property
     def assets_path(self) -> str:
@@ -76,6 +81,7 @@ class TexturePackParser():
     
     @property
     def mc_meta(self) -> MCMeta:
+        self.logger.debug("Parsing pack.mcmeta...")
         file = open(self.root_path + "/pack.mcmeta", mode="r")
         json_dict = json.load(file)
         file.close()
@@ -84,31 +90,44 @@ class TexturePackParser():
     @property
     def pack_format(self) -> Tuple[PACK_FORMAT_TYPES, Tuple[MCVersions]]:
         """Returns the pack format of this pack and the versions that pack format corresponds to."""
-        return self.mc_meta["pack"]["pack_format"], pack_formats.pack_format_versions[self.mc_meta["pack"]["pack_format"]]
+        try:
+            return self.mc_meta["pack"]["pack_format"], pack_formats.pack_format_versions[self.mc_meta["pack"]["pack_format"]]
+        except KeyError as e:
+            self.logger.error(
+                f"This texture pack's format seems to not be supported yet. Version detection will NOT be correct! " \
+                "Update jsqp-core to fix this as we may support this pack format in a newer version. " \
+                f"[Pack Format: {Colours.ORANGE.apply(str(e))} | " \
+                f"JS:QP Core Version: {Colours.BLUE.apply(__version__)}]"
+            )
+
+            return self.mc_meta["pack"]["pack_format"], pack_formats.pack_format_versions[15]
 
     @property
     def description(self) -> str | None:
         """Returns the pack's description from the .mcmeta file."""
         return self.mc_meta["pack"].get("description", None)
-    
+
     @property
     def version(self) -> MCVersions:
         """Returns the minecraft version this pack belongs to."""
+        if config.test_all_versions:
+            return self.detect_version(MCVersions)[0]
+
         version, version_diff = self.detect_version(self.pack_format[1])
-        
+
         if version_diff > 100: # If the version difference is too big target all versions.
             self.logger.warning(
-                "We are detecting a large version difference, " \
+                "We are detecting large version differences, " \
                 "If the detected pack version is false PLEASE report an issue at https://github.com/JS-Quick-Pack/jsqp-core/issues."
             )
             self.logger.debug("Trying again but with all minecraft versions instead...")
             version = self.detect_version(MCVersions)[0]
 
         return version
-    
+
     def detect_version(self, targeted_versions: Iterable[MCVersions] = None) -> Tuple[MCVersions, int]:
         """
-        This is an internal method, use `TexturePackParser.version` instead. 
+        NOTICE: If you just want the pack version use `TexturePackParser.version` instead.
         This method tries to detect the game version this pack was made for. Returns version and the detected map difference of that version.
         """
         version_diff: Dict[MCVersions, int] = {}
@@ -118,7 +137,7 @@ class TexturePackParser():
             targeted_versions = MCVersions
 
         for version in targeted_versions:
-            self.logger.debug(f"Testing against '{version.name}' map...")
+            self.logger.debug(f"Testing against '{version.name}' mappings...")
             json_file = open(f"{os.path.split(maps.__file__)[0]}/{version.value}.json", mode="r")
             json_file = json.load(json_file)
 
@@ -169,7 +188,7 @@ class TexturePackParser():
             if k == "files":
                 continue
 
-            self.__path_to_assets += f"/{k}"
+            self.__path_to_assets += f"{os.path.sep}{k}"
 
             if k == "assets":
                 self.logger.debug("Assets folder found!")

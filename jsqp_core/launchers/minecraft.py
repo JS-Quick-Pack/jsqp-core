@@ -16,16 +16,18 @@ from devgoldyutils import Colours
 
 from .. import errors
 from ..paths import Paths
-from ..packages.package import Package
-from . import Launcher, LauncherInfo, LauncherNotFound
+from ..time_benchmark import TimeBenchmark
+from .launcher import Launcher, LauncherInfo, LauncherNotFound
 
 if TYPE_CHECKING:
     from ..packages.file_package import FilePackage
 
+__all__ = ("Minecraft", )
+
 paths = Paths()
 
 @final
-class LauncherProfile(TypedDict):
+class LauncherProfileDict(TypedDict):
     """Minecraft launcher profile dictatory."""
     created: str
     gameDir: str
@@ -37,7 +39,7 @@ class LauncherProfile(TypedDict):
 
 @final
 class LauncherProfilesDict(TypedDict):
-    profiles: Dict[str, LauncherProfile]
+    profiles: Dict[str, LauncherProfileDict]
     settings: dict
     version: int
 
@@ -60,20 +62,24 @@ class Minecraft(Launcher):
 
         self.info.display_name += f" [{dot_minecraft_dir[1]}]" # Append type to display name.
 
-        self.dot_minecraft_dir = dot_minecraft_dir[0]
+        self._dot_minecraft_dir = dot_minecraft_dir[0]
         """The directory where the launcher files are. (e.g profiles, etc)"""
+
+        self.install_clock = TimeBenchmark(
+            msg = "⌛ Installed '{}' in {:0.4f} seconds!",
+            logger = self.logger
+        )
 
     @property
     def launcher_profiles(self) -> LauncherProfilesDict:
         """Returns the dictionary from the launcher_profiles.json file."""
-        file = open(self.dot_minecraft_dir + "/launcher_profiles.json", mode="r")
+        file = open(self._dot_minecraft_dir + "/launcher_profiles.json", mode="r")
         json_dict = json.load(file)
         file.close()
         return json_dict
 
     def find_launcher(self) -> Tuple[str, str]:
-        """Method that tries to find the minecraft launcher on your os and returns the path and type of installation."""
-        if sys.platform == "win32": # For the windows normies. You know literally 90% of players.
+        if sys.platform == "win32": # For the windows normies. You know literally 99.9% of players.
             return paths.appdata_dir + "/.minecraft", "official"
 
         elif sys.platform == "linux": # For the Linux nerds like me. 🤓
@@ -86,8 +92,8 @@ class Minecraft(Launcher):
                 return flatpak_install, "flatpak"
 
         raise LauncherNotFound(self)
-    
-    def add_to_profiles(self, package: FilePackage, folder_name: str, profiles: List[LauncherProfile] = None, overwrite: bool = False) -> List[LauncherProfile]:
+
+    def add_to_profiles(self, package: FilePackage, folder_name: str, profiles: List[LauncherProfileDict] = None, overwrite: bool = False) -> List[LauncherProfileDict]:
         """
         Method that adds a file package to the game profiles in the Minecraft Launcher.
         Returns the profiles that the package was added to.
@@ -102,7 +108,7 @@ class Minecraft(Launcher):
                 self.logger.warning(f"Skipped '{name}' because that profile was never used/launched.")
                 continue
 
-            game_dir = profile.get("gameDir", self.dot_minecraft_dir)
+            game_dir = profile.get("gameDir", self._dot_minecraft_dir)
 
             try:
                 package.link_to(os.path.join(game_dir, folder_name), overwrite = overwrite)
@@ -120,7 +126,9 @@ class Minecraft(Launcher):
         from ..packages.texture_pack import TexturePack
 
         if isinstance(package, TexturePack):
-            package.add(overwrite) # TODO: idk about doing this here, also we will definitely have to keep track of the repo with some type of database or json files.
+            self.install_clock.start()
+
+            package.add(overwrite)
 
             # Link the texture pack to each minecraft launcher profile.
             self.add_to_profiles(
@@ -129,9 +137,13 @@ class Minecraft(Launcher):
                 overwrite = overwrite
             )
 
+            self.install_clock.end(
+                package.name
+            )
+
             return None
 
         raise errors.PackageNotSupported(package, self)
 
-    def uninstall(self, package: Package, performance_mode: bool = False) -> bool:
+    def uninstall(self, package: FilePackage) -> bool:
         ...

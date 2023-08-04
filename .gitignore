@@ -5,3 +5,4 @@ jsqp_core.egg-info
 __pycache__
 .ruff_cache
 .pytest_cache
+.vscode
