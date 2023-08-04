@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 class JSQPCoreError(Exception):
     """Raises whenever there's a known error in jsqp core."""
     def __init__(self, message: str):
-        core_logger.error(message)
+        core_logger.critical(message)
         super().__init__(Colours.RED.apply(message))
 
 class PackageAlreadyExist(JSQPCoreError):
