@@ -74,7 +74,8 @@ class TexturePack(FilePackage):
             "display_name": self.display_name, "mc_meta": self.mc_meta, "minecraft_version": self.minecraft_version
         }
 
-    def install(self, launcher: Launcher = None, overwrite: bool = False, copy_it: bool = False):
+
+    def install(self, launcher: Launcher = None, overwrite: bool = False):
         """
         Method that allows you to install this pack into your minecraft game.
 
@@ -83,16 +84,8 @@ class TexturePack(FilePackage):
         if launcher is None: # Default launcher is the official minecraft launcher.
             launcher = Minecraft()
             self.logger.info(f"Launcher was not specified so I'm defaulting to '{launcher.display_name}'.")
-            if not config.performance_mode: time.sleep(1.5) # Will probably remove this.
-
-        start_time = time.perf_counter()
 
         launcher.install(self, overwrite)
-
-        end_time = time.perf_counter()
-
-        # TODO: We should probably move this to the launchers's base functions.
-        self.logger.info(f"⌛ Installed '{self.name}' in {end_time - start_time:0.4f} seconds!")
 
     def remove(self):
         """Method that allows you to remove this pack from your minecraft game."""

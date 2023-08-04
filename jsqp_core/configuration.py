@@ -7,17 +7,6 @@ class Config():
         self.env = AutoConfig(".")
 
     @property
-    def performance_mode(self) -> bool:
-        """
-        When enabled some fancy stuff and extra debugging features are disabled like zip extraction logs in order to speed up performance.
-        """
-        return self.env("JSQP_PERFORMANCE", default = False)
-
-    @performance_mode.setter
-    def performance_mode(self, x: bool):
-        os.environ["JSQP_PERFORMANCE"] = str(x).lower()
-
-    @property
     def no_copy(self) -> bool:
         """When enabled files will be deleted after being moved instead of just copied."""
         return self.env("JSQP_NO_COPY", default = False)

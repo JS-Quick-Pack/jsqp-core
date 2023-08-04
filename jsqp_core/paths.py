@@ -22,14 +22,14 @@ class Paths():
             self.repair_app_data_dir()
 
     @property
-    def appdata_dir(self):
+    def appdata_dir(self) -> str:
         """On Linux this returns the HOME directory."""
         if self.__platform == "win32":
             return os.getenv("APPDATA")
         elif self.__platform == "linux":
             return os.getenv("HOME")
-        else:
-            raise errors.OSNotSupported()
+
+        raise errors.OSNotSupported()
     
     @property
     def dev_goldy_dir(self) -> str:
@@ -46,7 +46,7 @@ class Paths():
         """Returns path to jsqp core temp folder."""
         return f"{self.jsqp_core_appdata_dir}/.temp"
 
-    def repair_app_data_dir(self, more_paths_to_repair:List[str] = None):
+    def repair_app_data_dir(self, more_paths_to_repair:List[str] = None) -> None:
         if more_paths_to_repair is None:
             more_paths_to_repair = []
 
@@ -58,4 +58,4 @@ class Paths():
             self.logger.debug(f"Creating '{path}'...")
             os.makedirs(path, exist_ok=True)
 
-        self.logger.info("Done repairing appdata dir!")
+        self.logger.info("Done repairing appdata dir and other paths!")
