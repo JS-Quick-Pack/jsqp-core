@@ -173,7 +173,7 @@ class FilePackage(Package, ABC):
         if os.path.exists(new_path):
 
             if overwrite or config.overwrite:
-                self.logger.info("Overwriting as it already exists...")
+                self.logger.debug("Overwriting as it already exists...")
                 shutil.rmtree(new_path, True) if os.path.isdir(new_path) else os.remove(new_path)
 
             else:
