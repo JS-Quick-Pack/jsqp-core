@@ -13,4 +13,4 @@ from .configuration import Config
 config = Config()
 
 __all__: Final[Tuple[str]] = ("config",)
-__version__: Final[str] = "1.0dev2"
+__version__: Final[str] = "1.0dev3"

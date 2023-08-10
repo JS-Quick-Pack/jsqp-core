@@ -1,5 +1,5 @@
 """
-A script used by use to create json mapings of texture packs for the texture pack parser.
+A script used by us to create json mappings of texture packs for the texture pack parser.
 """
 import os
 import sys

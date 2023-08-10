@@ -115,7 +115,7 @@ class TexturePackParser():
 
         version, version_diff = self.detect_version(self.pack_format[1])
 
-        if version_diff > 100: # If the version difference is too big target all versions.
+        if version_diff > 1500: # If the version difference is too big target all versions.
             self.logger.warning(
                 "We are detecting large version differences, " \
                 "If the detected pack version is false PLEASE report an issue at https://github.com/JS-Quick-Pack/jsqp-core/issues."
@@ -141,15 +141,11 @@ class TexturePackParser():
             json_file = open(f"{os.path.split(maps.__file__)[0]}/{version.value}.json", mode="r")
             json_file = json.load(json_file)
 
-            #difference = DeepDiff(self.map, json_file)
-            #version_diff[version] = len(difference.affected_paths)
+            mc_map_files = self.__get_map_files(json_file)
+            texture_pack_map_files = self.__get_map_files(self.map)
 
-            mc_map_files = next(self.__get_map_files(json_file))
-            texture_pack_map_files = next(self.__get_map_files(self.map))
-
-            difference = list(set(mc_map_files).symmetric_difference(set(texture_pack_map_files)))
-            #print(">", difference)
-            version_diff[version] = len(difference)
+            files_not_found = set(texture_pack_map_files) - set(mc_map_files)
+            version_diff[version] = len(files_not_found)
 
         sorted_versions = sorted(version_diff, key=lambda x: version_diff[x])
         detected_version = sorted_versions[0]
@@ -199,8 +195,8 @@ class TexturePackParser():
 
             yield next(self.__find_assets_folder(v))
 
-    def __get_map_files(self, map: dict) -> Generator[List[str], Any, Any]:
-        """Function returns all files from a texture pack map as a list."""
+    def __get_map_files(self, map: dict) -> List[str]:
+        """Function that returns all files from a texture pack map as a list."""
         list = []
 
         for key, value in map.items():
@@ -208,6 +204,6 @@ class TexturePackParser():
                 list.extend(value)
                 continue
 
-            yield next(self.__get_map_files(value))
+            list.extend(self.__get_map_files(value))
 
-        yield list
+        return list
