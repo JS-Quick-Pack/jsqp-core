@@ -2,7 +2,7 @@
 
   # 🟣 jsqp-core
   
-  <sub>An open-source Minecraft package management library.</sub>
+  <sub>An open-source Minecraft package management library here to solve Minecraft's mess.</sub>
   
 </div>
 
@@ -86,7 +86,7 @@ The current state of JS:QP core may appear underwhelming as it currently functio
     - This library was meant to be written within the [JS:QP app](https://github.com/JS-Quick-Pack/jsqp-app) which was a gui app I used to work on. I decided to separate the two codebases for the good of it being a standalone open-source library other developers can leverage and allowing us to maintain the codebase easier than ever.
 
 ## 🏆 The Goal
-The goal of JSQPCore is to create an open-source library that can manage resources like texture packs, mods, data packs, skins and a lot more from Minecraft. Alongside that, because of its 100% open-source nature, we plan to support as many Minecraft launchers and versions as possible, encouraging the community to do so too.
+The goal of JSQPCore is to create an open-source library that can manage resources like texture packs, mods, data packs, skins and a lot more from Minecraft. Alongside that, because of its 100% open-source nature, we plan to support as many Minecraft launchers and versions as possible, encouraging the community to do so too. Join us to build this 🌎 universal and ✨ cross-platform API.
 
 <br>
 
